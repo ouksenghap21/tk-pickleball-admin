@@ -890,6 +890,160 @@
             font-size: 16px;
         }
 
+        /* ============================================
+           ACTIVATION CODE MODAL STYLES
+           ============================================ */
+        .activation-code-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .activation-code-icon {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+
+        .activation-code-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .activation-code-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .activation-code-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: 16px;
+            padding: 24px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-family: 'Courier New', monospace;
+            user-select: all;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-indent: 16px;
+        }
+
+        .activation-code-display:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .activation-code-display:active {
+            transform: scale(0.98);
+        }
+
+        .activation-code-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .activation-code-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .activation-code-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .activation-code-info-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .activation-code-info-value {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .activation-code-instructions {
+            background: #fff3e0;
+            border: 1px solid #ffcc80;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #e65100;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .activation-code-instructions strong {
+            display: block;
+            margin-top: 4px;
+            color: #bf360c;
+        }
+
+        .activation-code-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .copy-btn {
+            flex: 1;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: #5a6fd6;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+
+        .close-code-btn {
+            flex: 1;
+            background: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-code-btn:hover {
+            background: #e0e0e0;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .booking-item {
@@ -915,6 +1069,17 @@
 
             .package-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .activation-code-display {
+                font-size: 40px;
+                letter-spacing: 12px;
+                padding: 20px 24px;
+                text-indent: 12px;
+            }
+
+            .activation-code-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -1287,6 +1452,56 @@
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="hideModal('viewCustomerModal')">Close</button>
                 <button class="btn btn-primary" onclick="addCreditsFromCustomerView()">Add Credits</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ACTIVATION CODE MODAL (NEW!)
+         ============================================ -->
+    <div id="activationCodeModal" class="modal">
+        <div class="activation-code-modal">
+            <div class="activation-code-icon">🎫</div>
+            <h2 class="activation-code-title">Credits Added Successfully!</h2>
+            <p class="activation-code-subtitle">Give this activation code to the customer</p>
+            
+            <div class="activation-code-display" id="activationCodeDisplay" onclick="copyActivationCode()" title="Click to copy">
+                0000
+            </div>
+            
+            <div class="activation-code-info">
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Customer</span>
+                    <span class="activation-code-info-value" id="codeCustomerName">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Phone</span>
+                    <span class="activation-code-info-value" id="codeCustomerPhone">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Package</span>
+                    <span class="activation-code-info-value" id="codePackageName">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Hours Added</span>
+                    <span class="activation-code-info-value" id="codeHoursAdded">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">New Balance</span>
+                    <span class="activation-code-info-value" id="codeNewBalance">-</span>
+                </div>
+            </div>
+            
+            <div class="activation-code-instructions">
+                📱 Customer activates credits in Telegram bot:
+                <strong>Menu → Activate Credits → Enter Code</strong>
+            </div>
+            
+            <div class="activation-code-buttons">
+                <button class="copy-btn" id="copyCodeBtn" onclick="copyActivationCode()">
+                    <span>📋</span> Copy Code
+                </button>
+                <button class="close-code-btn" onclick="hideActivationCodeModal()">Done</button>
             </div>
         </div>
     </div>
@@ -1792,6 +2007,9 @@
             document.getElementById('summaryPrice').textContent = selectedPackage.price;
         }
 
+        // ============================================
+        // ADD CREDITS WITH ACTIVATION CODE MODAL
+        // ============================================
         async function addCreditsToCustomer() {
             if (!selectedCustomer || !selectedPackage) {
                 showToast('Please select a customer and package', 'error');
@@ -1814,22 +2032,26 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    let message = `✅ ${selectedPackage.hours} hours added!`;
-                    if (data.activationCode) {
-                        message += `\n\n📝 Activation Code: ${data.activationCode}`;
-                    }
-                    showToast(message, 'success');
-
-                    // Reset form
-                    document.getElementById('creditSearchInput').value = '';
-                    document.getElementById('creditCustomerCard').style.display = 'none';
-                    document.getElementById('creditPackagesSection').style.display = 'none';
-                    selectedCustomer = null;
-                    selectedPackage = null;
-
-                    // Show activation code in alert if new customer
-                    if (data.activationCode) {
-                        alert(`ACTIVATION CODE: ${data.activationCode}\n\nGive this code to the customer.\nThey enter it in the Telegram bot to activate their credits.`);
+                    // Calculate new balance
+                    const currentBalance = selectedCustomer.balance || 0;
+                    const newBalance = data.balance || (currentBalance + selectedPackage.hours);
+                    
+                    if (data.activationCode && !data.alreadyActivated) {
+                        // New customer or not yet activated - show activation code modal
+                        showActivationCodeModal(
+                            data.activationCode,
+                            selectedCustomer.name || 'Customer',
+                            selectedCustomer.phone,
+                            selectedPackage.name,
+                            selectedPackage.hours,
+                            newBalance
+                        );
+                    } else {
+                        // Already activated customer - just show success toast
+                        showToast(`✅ ${selectedPackage.hours} hours added! New balance: ${newBalance} hours`, 'success');
+                        
+                        // Reset form
+                        resetCreditForm();
                     }
                 } else {
                     showToast(data.error || 'Failed to add credits', 'error');
@@ -1840,6 +2062,94 @@
             }
 
             showLoading(false);
+        }
+
+        // ============================================
+        // ACTIVATION CODE MODAL FUNCTIONS
+        // ============================================
+        function showActivationCodeModal(code, customerName, phone, packageName, hours, newBalance) {
+            document.getElementById('activationCodeDisplay').textContent = code;
+            document.getElementById('codeCustomerName').textContent = customerName;
+            document.getElementById('codeCustomerPhone').textContent = phone;
+            document.getElementById('codePackageName').textContent = packageName;
+            document.getElementById('codeHoursAdded').textContent = hours + ' hours';
+            document.getElementById('codeNewBalance').textContent = newBalance + ' hours';
+            
+            // Reset copy button state
+            const copyBtn = document.getElementById('copyCodeBtn');
+            copyBtn.innerHTML = '<span>📋</span> Copy Code';
+            copyBtn.classList.remove('copied');
+            
+            showModal('activationCodeModal');
+        }
+
+        function hideActivationCodeModal() {
+            hideModal('activationCodeModal');
+            resetCreditForm();
+        }
+
+        function copyActivationCode() {
+            const code = document.getElementById('activationCodeDisplay').textContent;
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showCopySuccess();
+                }).catch(() => {
+                    fallbackCopy(code);
+                });
+            } else {
+                fallbackCopy(code);
+            }
+        }
+
+        function fallbackCopy(text) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                showToast('Failed to copy. Please copy manually.', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showCopySuccess() {
+            const copyBtn = document.getElementById('copyCodeBtn');
+            copyBtn.innerHTML = '<span>✅</span> Copied!';
+            copyBtn.classList.add('copied');
+            
+            showToast('Code copied to clipboard!', 'success');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = '<span>📋</span> Copy Code';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+
+        function resetCreditForm() {
+            document.getElementById('creditSearchInput').value = '';
+            document.getElementById('creditCustomerCard').style.display = 'none';
+            document.getElementById('creditPackagesSection').style.display = 'none';
+            document.getElementById('newCustomerSection').style.display = 'none';
+            selectedCustomer = null;
+            selectedPackage = null;
+            
+            // Reset package selection visually
+            document.querySelectorAll('.package-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            updateCreditSummary();
         }
 
         async function createNewCustomer() {
