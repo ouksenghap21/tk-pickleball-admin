@@ -408,6 +408,16 @@
             color: #c62828;
         }
 
+        .badge-pending {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        .badge-activated {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
         .booking-actions {
             display: flex;
             gap: 8px;
@@ -465,93 +475,6 @@
             width: 100%;
         }
 
-        /* Search Box */
-        .search-box {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 14px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-btn {
-            padding: 14px 24px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .search-btn:hover {
-            background: #5a6fd6;
-        }
-
-        /* Customer Card */
-        .customer-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .customer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 16px;
-        }
-
-        .customer-name {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .customer-phone {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-top: 4px;
-        }
-
-        .customer-balance {
-            text-align: right;
-        }
-
-        .customer-balance-label {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .customer-balance-value {
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        .customer-status {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 8px;
-        }
-
         /* Package Grid */
         .package-grid {
             display: grid;
@@ -604,39 +527,6 @@
             margin-top: 8px;
         }
 
-        /* Form Groups */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
         /* Summary Box */
         .summary-box {
             background: #f5f5f5;
@@ -657,6 +547,54 @@
             font-weight: 700;
             font-size: 18px;
             padding-top: 12px;
+        }
+
+        /* Code List */
+        .code-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .code-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .code-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .code-info {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .code-package {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .code-details {
+            font-size: 13px;
+            color: #666;
         }
 
         /* Customer List */
@@ -774,125 +712,7 @@
             flex: 1;
         }
 
-        /* Time Grid */
-        .time-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .time-slot {
-            padding: 12px 8px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .time-slot:hover {
-            border-color: #667eea;
-        }
-
-        .time-slot.selected {
-            background: #667eea;
-            border-color: #667eea;
-            color: white;
-        }
-
-        .time-slot.unavailable {
-            background: #f5f5f5;
-            color: #999;
-            cursor: not-allowed;
-        }
-
-        /* Loading */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #e0e0e0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 16px;
-            font-size: 16px;
-            color: #666;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #333;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            z-index: 3000;
-            transition: transform 0.3s;
-            max-width: 90%;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast.success {
-            background: #2e7d32;
-        }
-
-        .toast.error {
-            background: #c62828;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-        }
-
-        .empty-state-text {
-            font-size: 16px;
-        }
-
-        /* ============================================
-           ACTIVATION CODE MODAL STYLES
-           ============================================ */
+        /* Activation Code Modal */
         .activation-code-modal {
             background: white;
             border-radius: 20px;
@@ -1044,14 +864,110 @@
             background: #e0e0e0;
         }
 
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 3000;
+            transition: transform 0.3s;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: #2e7d32;
+        }
+
+        .toast.error {
+            background: #c62828;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* Tab Content Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
-            .booking-item {
+            .booking-item, .code-item {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .booking-time {
+            .booking-time, .code-display {
                 width: 100%;
             }
 
@@ -1061,10 +977,6 @@
 
             .booking-actions .btn {
                 flex: 1;
-            }
-
-            .time-grid {
-                grid-template-columns: repeat(3, 1fr);
             }
 
             .package-grid {
@@ -1140,8 +1052,8 @@
                 Bookings
             </button>
             <button class="nav-tab" data-tab="credits" onclick="switchTab('credits')">
-                <span class="nav-tab-icon">💳</span>
-                Credits
+                <span class="nav-tab-icon">🎫</span>
+                Generate Code
             </button>
             <button class="nav-tab" data-tab="customers" onclick="switchTab('customers')">
                 <span class="nav-tab-icon">👥</span>
@@ -1195,69 +1107,53 @@
         </div>
 
         <!-- ============================================
-             CREDITS TAB
+             CREDITS TAB - SIMPLIFIED!
              ============================================ -->
         <div id="tab-credits" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">🎫 Generate Credit Code</h2>
+            </div>
+
+            <!-- Step 1: Select Package -->
             <div class="card">
-                <h3 class="card-title" style="margin-bottom: 16px;">🔍 Find Customer</h3>
-                <div class="search-box">
-                    <input type="text" id="creditSearchInput" class="search-input" placeholder="Enter phone number or name..." onkeypress="if(event.key==='Enter')searchCustomerForCredit()">
-                    <button class="search-btn" onclick="searchCustomerForCredit()">🔍 Search</button>
+                <h3 class="card-title" style="margin-bottom: 16px;">📦 Select Package</h3>
+                <div class="package-grid" id="packageGrid">
+                    <!-- Packages will be inserted here -->
                 </div>
             </div>
 
-            <div id="creditCustomerCard" style="display: none;">
-                <!-- Customer info will be inserted here -->
-            </div>
-
-            <div id="creditPackagesSection" style="display: none;">
-                <div class="card">
-                    <h3 class="card-title" style="margin-bottom: 16px;">📦 Select Package</h3>
-                    <div class="package-grid" id="packageGrid">
-                        <!-- Packages will be inserted here -->
+            <!-- Step 2: Summary & Generate -->
+            <div class="card" id="generateSection" style="display: none;">
+                <h3 class="card-title" style="margin-bottom: 16px;">📝 Summary</h3>
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span>Package</span>
+                        <span id="summaryPackage">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Hours</span>
+                        <span id="summaryHours">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Amount to Collect</span>
+                        <span>$<span id="summaryPrice">0</span></span>
                     </div>
                 </div>
-
-                <div class="card">
-                    <h3 class="card-title" style="margin-bottom: 16px;">📝 Summary</h3>
-                    <div class="summary-box">
-                        <div class="summary-row">
-                            <span>Package</span>
-                            <span id="summaryPackage">-</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Hours</span>
-                            <span id="summaryHours">-</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Current Balance</span>
-                            <span id="summaryCurrentBalance">-</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>New Balance</span>
-                            <span id="summaryNewBalance">-</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Amount to Collect</span>
-                            <span>$<span id="summaryPrice">0</span></span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-large" onclick="addCreditsToCustomer()">✅ Add Credits</button>
-                </div>
+                <button class="btn btn-primary btn-large" onclick="generateCode()">🎫 Generate Activation Code</button>
             </div>
 
-            <div id="newCustomerSection" class="card" style="display: none;">
-                <h3 class="card-title" style="margin-bottom: 16px;">🆕 New Customer</h3>
-                <p style="color: #666; margin-bottom: 16px;">Customer not found. Create new credit account:</p>
-                <div class="form-group">
-                    <label class="form-label">Name *</label>
-                    <input type="text" id="newCustomerName" class="form-input" placeholder="Customer name">
+            <!-- Pending Codes Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">⏳ Pending Codes</h3>
+                    <button class="btn btn-secondary" onclick="loadPendingCodes()">🔄 Refresh</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Phone *</label>
-                    <input type="tel" id="newCustomerPhone" class="form-input" placeholder="Phone number">
+                <div id="pendingCodesList" class="code-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎫</div>
+                        <p class="empty-state-text">No pending codes</p>
+                    </div>
                 </div>
-                <button class="btn btn-success" onclick="createNewCustomer()">Create Customer</button>
             </div>
         </div>
 
@@ -1265,17 +1161,23 @@
              CUSTOMERS TAB
              ============================================ -->
         <div id="tab-customers" class="content-section">
-            <div class="card">
-                <div class="search-box">
-                    <input type="text" id="customerSearchInput" class="search-input" placeholder="Search by name or phone..." onkeypress="if(event.key==='Enter')searchCustomers()">
-                    <button class="search-btn" onclick="searchCustomers()">🔍 Search</button>
+            <div class="section-header">
+                <h2 class="section-title">👥 Activated Customers</h2>
+                <button class="btn btn-secondary" onclick="loadActivatedAccounts()">🔄 Refresh</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalCustomers">0</div>
+                    <div class="stat-label">Total Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalCreditsBalance">0</div>
+                    <div class="stat-label">Total Credit Hours</div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">👥 Customers with Credits</h3>
-                </div>
                 <div id="customersList" class="customer-list">
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
@@ -1334,24 +1236,24 @@
                 <button class="modal-close" onclick="hideModal('newBookingModal')">&times;</button>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Customer Name *</label>
-                <input type="text" id="newBookingName" class="form-input" placeholder="Enter name">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Customer Name *</label>
+                <input type="text" id="newBookingName" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;" placeholder="Enter name">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Phone *</label>
-                <input type="tel" id="newBookingPhone" class="form-input" placeholder="Enter phone">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Phone *</label>
+                <input type="tel" id="newBookingPhone" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;" placeholder="Enter phone">
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Date *</label>
-                    <input type="date" id="newBookingDate" class="form-input">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Date *</label>
+                    <input type="date" id="newBookingDate" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Duration *</label>
-                    <select id="newBookingDuration" class="form-select" onchange="updateNewBookingPrice()">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Duration *</label>
+                    <select id="newBookingDuration" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;" onchange="updateNewBookingPrice()">
                         <option value="1">1 Hour</option>
                         <option value="2">2 Hours</option>
                         <option value="3">3 Hours</option>
@@ -1360,9 +1262,9 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Courts *</label>
-                <select id="newBookingCourts" class="form-select" onchange="updateNewBookingPrice()">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Courts *</label>
+                <select id="newBookingCourts" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;" onchange="updateNewBookingPrice()">
                     <option value="1">1 Court</option>
                     <option value="2">2 Courts</option>
                     <option value="3">3 Courts</option>
@@ -1370,17 +1272,29 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Start Time *</label>
-                <div id="newBookingTimeGrid" class="time-grid">
-                    <!-- Time slots will be inserted here -->
-                </div>
-                <input type="hidden" id="newBookingTime">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Start Time *</label>
+                <select id="newBookingTime" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="21:00">9:00 PM</option>
+                </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Payment Method</label>
-                <select id="newBookingPayment" class="form-select">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Payment Method</label>
+                <select id="newBookingPayment" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
                     <option value="cash">💵 Cash (Pay on Arrival)</option>
                     <option value="credits">🎫 Credits</option>
                 </select>
@@ -1436,6 +1350,48 @@
     </div>
 
     <!-- ============================================
+         ACTIVATION CODE SUCCESS MODAL
+         ============================================ -->
+    <div id="activationCodeModal" class="modal">
+        <div class="activation-code-modal">
+            <div class="activation-code-icon">🎫</div>
+            <h2 class="activation-code-title">Code Generated!</h2>
+            <p class="activation-code-subtitle">Give this code to the customer</p>
+            
+            <div class="activation-code-display" id="activationCodeDisplay" onclick="copyActivationCode()" title="Click to copy">
+                0000
+            </div>
+            
+            <div class="activation-code-info">
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Package</span>
+                    <span class="activation-code-info-value" id="codePackageName">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Hours</span>
+                    <span class="activation-code-info-value" id="codeHoursAdded">-</span>
+                </div>
+                <div class="activation-code-info-row">
+                    <span class="activation-code-info-label">Amount to Collect</span>
+                    <span class="activation-code-info-value" id="codeAmountCollect">-</span>
+                </div>
+            </div>
+            
+            <div class="activation-code-instructions">
+                📱 Customer activates in Telegram bot:
+                <strong>Menu → Activate Credits → Enter Code</strong>
+            </div>
+            
+            <div class="activation-code-buttons">
+                <button class="copy-btn" id="copyCodeBtn" onclick="copyActivationCode()">
+                    <span>📋</span> Copy Code
+                </button>
+                <button class="close-code-btn" onclick="hideActivationCodeModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
          VIEW CUSTOMER MODAL
          ============================================ -->
     <div id="viewCustomerModal" class="modal">
@@ -1451,57 +1407,6 @@
 
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="hideModal('viewCustomerModal')">Close</button>
-                <button class="btn btn-primary" onclick="addCreditsFromCustomerView()">Add Credits</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================
-         ACTIVATION CODE MODAL (NEW!)
-         ============================================ -->
-    <div id="activationCodeModal" class="modal">
-        <div class="activation-code-modal">
-            <div class="activation-code-icon">🎫</div>
-            <h2 class="activation-code-title">Credits Added Successfully!</h2>
-            <p class="activation-code-subtitle">Give this activation code to the customer</p>
-            
-            <div class="activation-code-display" id="activationCodeDisplay" onclick="copyActivationCode()" title="Click to copy">
-                0000
-            </div>
-            
-            <div class="activation-code-info">
-                <div class="activation-code-info-row">
-                    <span class="activation-code-info-label">Customer</span>
-                    <span class="activation-code-info-value" id="codeCustomerName">-</span>
-                </div>
-                <div class="activation-code-info-row">
-                    <span class="activation-code-info-label">Phone</span>
-                    <span class="activation-code-info-value" id="codeCustomerPhone">-</span>
-                </div>
-                <div class="activation-code-info-row">
-                    <span class="activation-code-info-label">Package</span>
-                    <span class="activation-code-info-value" id="codePackageName">-</span>
-                </div>
-                <div class="activation-code-info-row">
-                    <span class="activation-code-info-label">Hours Added</span>
-                    <span class="activation-code-info-value" id="codeHoursAdded">-</span>
-                </div>
-                <div class="activation-code-info-row">
-                    <span class="activation-code-info-label">New Balance</span>
-                    <span class="activation-code-info-value" id="codeNewBalance">-</span>
-                </div>
-            </div>
-            
-            <div class="activation-code-instructions">
-                📱 Customer activates credits in Telegram bot:
-                <strong>Menu → Activate Credits → Enter Code</strong>
-            </div>
-            
-            <div class="activation-code-buttons">
-                <button class="copy-btn" id="copyCodeBtn" onclick="copyActivationCode()">
-                    <span>📋</span> Copy Code
-                </button>
-                <button class="close-code-btn" onclick="hideActivationCodeModal()">Done</button>
             </div>
         </div>
     </div>
@@ -1553,10 +1458,8 @@
 
         // State
         let currentPin = '';
-        let selectedCustomer = null;
         let selectedPackage = null;
         let bookingToCancel = null;
-        let viewingCustomer = null;
 
         // ============================================
         // LOGIN FUNCTIONS
@@ -1588,13 +1491,11 @@
             if (currentPin.length !== 4) return;
 
             if (currentPin === ADMIN_PIN) {
-                // Success
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('show');
                 localStorage.setItem('adminLoggedIn', 'true');
                 initDashboard();
             } else {
-                // Error
                 for (let i = 1; i <= 4; i++) {
                     document.getElementById('dot' + i).classList.add('error');
                 }
@@ -1614,33 +1515,30 @@
         // DASHBOARD FUNCTIONS
         // ============================================
         function initDashboard() {
-            // Set today's date
             const today = formatDate(new Date());
             document.getElementById('bookingDate').value = today;
             document.getElementById('newBookingDate').value = today;
 
-            // Load initial data
             loadBookings();
-            loadCustomers();
-            loadStats();
             renderPackages();
-            renderNewBookingTimeSlots();
+            loadPendingCodes();
+            loadActivatedAccounts();
+            loadStats();
         }
 
         function switchTab(tabId) {
-            // Update tab buttons
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.tab === tabId);
             });
 
-            // Update content sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.toggle('active', section.id === 'tab-' + tabId);
             });
 
-            // Load data for specific tabs
-            if (tabId === 'customers') {
-                loadCustomers();
+            if (tabId === 'credits') {
+                loadPendingCodes();
+            } else if (tabId === 'customers') {
+                loadActivatedAccounts();
             } else if (tabId === 'stats') {
                 loadStats();
             }
@@ -1654,7 +1552,6 @@
             date.setDate(date.getDate() + offset);
             document.getElementById('bookingDate').value = formatDate(date);
 
-            // Update quick buttons
             document.querySelectorAll('.date-picker-row .quick-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -1701,7 +1598,6 @@
                 return;
             }
 
-            // Sort by time
             bookings.sort((a, b) => a.time.localeCompare(b.time));
 
             container.innerHTML = bookings.map(booking => {
@@ -1709,9 +1605,6 @@
                 const paymentBadge = booking.payment_method === 'credits' 
                     ? '<span class="booking-badge badge-credits">🎫 Credits</span>'
                     : '<span class="booking-badge badge-cash">💵 Cash</span>';
-                const statusBadge = booking.status === 'cancelled'
-                    ? '<span class="booking-badge badge-cancelled">Cancelled</span>'
-                    : '';
 
                 return `
                     <div class="booking-item" data-booking-id="${booking.booking_id}">
@@ -1724,12 +1617,9 @@
                         </div>
                         <div class="booking-meta">
                             ${paymentBadge}
-                            ${statusBadge}
                         </div>
                         <div class="booking-actions">
-                            ${booking.status !== 'cancelled' ? `
-                                <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}')">Cancel</button>
-                            ` : ''}
+                            <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}')">Cancel</button>
                         </div>
                     </div>
                 `;
@@ -1757,28 +1647,11 @@
             document.getElementById('newBookingPhone').value = '';
             document.getElementById('newBookingDuration').value = '1';
             document.getElementById('newBookingCourts').value = '1';
-            document.getElementById('newBookingTime').value = '';
+            document.getElementById('newBookingTime').value = '08:00';
             document.getElementById('newBookingPayment').value = 'cash';
             
-            renderNewBookingTimeSlots();
             updateNewBookingPrice();
             showModal('newBookingModal');
-        }
-
-        function renderNewBookingTimeSlots() {
-            const container = document.getElementById('newBookingTimeGrid');
-            container.innerHTML = TIME_SLOTS.map(slot => `
-                <div class="time-slot" data-time="${slot.value}" onclick="selectNewBookingTime('${slot.value}')">
-                    ${slot.label}
-                </div>
-            `).join('');
-        }
-
-        function selectNewBookingTime(time) {
-            document.querySelectorAll('#newBookingTimeGrid .time-slot').forEach(slot => {
-                slot.classList.toggle('selected', slot.dataset.time === time);
-            });
-            document.getElementById('newBookingTime').value = time;
         }
 
         function updateNewBookingPrice() {
@@ -1901,70 +1774,8 @@
         }
 
         // ============================================
-        // CREDITS FUNCTIONS
+        // CREDITS FUNCTIONS - SIMPLIFIED!
         // ============================================
-        async function searchCustomerForCredit() {
-            const searchTerm = document.getElementById('creditSearchInput').value.trim();
-            if (!searchTerm) {
-                showToast('Please enter a phone number or name', 'error');
-                return;
-            }
-
-            showLoading(true);
-
-            try {
-                const url = `${BACKEND_URL}?action=searchCreditsByPhone&phone=${encodeURIComponent(searchTerm)}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.success && data.results && data.results.length > 0) {
-                    selectedCustomer = data.results[0];
-                    renderCustomerCard(selectedCustomer);
-                    document.getElementById('creditCustomerCard').style.display = 'block';
-                    document.getElementById('creditPackagesSection').style.display = 'block';
-                    document.getElementById('newCustomerSection').style.display = 'none';
-                    
-                    // Reset package selection
-                    selectedPackage = null;
-                    document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
-                    updateCreditSummary();
-                } else {
-                    // No customer found - show new customer form
-                    selectedCustomer = null;
-                    document.getElementById('creditCustomerCard').style.display = 'none';
-                    document.getElementById('creditPackagesSection').style.display = 'none';
-                    document.getElementById('newCustomerSection').style.display = 'block';
-                    document.getElementById('newCustomerPhone').value = searchTerm;
-                }
-            } catch (error) {
-                console.error('Error searching customer:', error);
-                showToast('Connection error', 'error');
-            }
-
-            showLoading(false);
-        }
-
-        function renderCustomerCard(customer) {
-            const container = document.getElementById('creditCustomerCard');
-            const statusText = customer.isLinked ? 'Telegram Connected ✅' : 'Pending Activation ⏳';
-
-            container.innerHTML = `
-                <div class="customer-card">
-                    <div class="customer-header">
-                        <div>
-                            <div class="customer-name">${customer.name || 'Unknown'}</div>
-                            <div class="customer-phone">📞 ${customer.phone}</div>
-                            <div class="customer-status">${statusText}</div>
-                        </div>
-                        <div class="customer-balance">
-                            <div class="customer-balance-label">Credit Balance</div>
-                            <div class="customer-balance-value">${customer.balance || 0} hrs</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
         function renderPackages() {
             const container = document.getElementById('packageGrid');
             container.innerHTML = PACKAGES.map(pkg => `
@@ -1984,35 +1795,18 @@
                 card.classList.toggle('selected', card.dataset.package === packageId);
             });
 
-            updateCreditSummary();
-        }
-
-        function updateCreditSummary() {
-            if (!selectedPackage) {
-                document.getElementById('summaryPackage').textContent = '-';
-                document.getElementById('summaryHours').textContent = '-';
-                document.getElementById('summaryCurrentBalance').textContent = '-';
-                document.getElementById('summaryNewBalance').textContent = '-';
-                document.getElementById('summaryPrice').textContent = '0';
-                return;
-            }
-
-            const currentBalance = selectedCustomer?.balance || 0;
-            const newBalance = currentBalance + selectedPackage.hours;
-
+            // Show generate section
+            document.getElementById('generateSection').style.display = 'block';
+            
+            // Update summary
             document.getElementById('summaryPackage').textContent = selectedPackage.name;
             document.getElementById('summaryHours').textContent = selectedPackage.hours + ' hours';
-            document.getElementById('summaryCurrentBalance').textContent = currentBalance + ' hours';
-            document.getElementById('summaryNewBalance').textContent = newBalance + ' hours';
             document.getElementById('summaryPrice').textContent = selectedPackage.price;
         }
 
-        // ============================================
-        // ADD CREDITS WITH ACTIVATION CODE MODAL
-        // ============================================
-        async function addCreditsToCustomer() {
-            if (!selectedCustomer || !selectedPackage) {
-                showToast('Please select a customer and package', 'error');
+        async function generateCode() {
+            if (!selectedPackage) {
+                showToast('Please select a package', 'error');
                 return;
             }
 
@@ -2020,9 +1814,7 @@
 
             try {
                 const params = new URLSearchParams({
-                    action: 'addCredits',
-                    phone: selectedCustomer.phone,
-                    name: selectedCustomer.name || 'Customer',
+                    action: 'generateActivationCode',
                     package: selectedPackage.id,
                     staff: document.getElementById('staffName').textContent
                 });
@@ -2032,48 +1824,32 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Calculate new balance
-                    const currentBalance = selectedCustomer.balance || 0;
-                    const newBalance = data.balance || (currentBalance + selectedPackage.hours);
+                    // Show activation code modal
+                    showActivationCodeModal(
+                        data.activationCode,
+                        data.packageName,
+                        data.hours,
+                        data.amountPaid
+                    );
                     
-                    if (data.activationCode && !data.alreadyActivated) {
-                        // New customer or not yet activated - show activation code modal
-                        showActivationCodeModal(
-                            data.activationCode,
-                            selectedCustomer.name || 'Customer',
-                            selectedCustomer.phone,
-                            selectedPackage.name,
-                            selectedPackage.hours,
-                            newBalance
-                        );
-                    } else {
-                        // Already activated customer - just show success toast
-                        showToast(`✅ ${selectedPackage.hours} hours added! New balance: ${newBalance} hours`, 'success');
-                        
-                        // Reset form
-                        resetCreditForm();
-                    }
+                    // Refresh pending codes list
+                    loadPendingCodes();
                 } else {
-                    showToast(data.error || 'Failed to add credits', 'error');
+                    showToast(data.error || 'Failed to generate code', 'error');
                 }
             } catch (error) {
-                console.error('Error adding credits:', error);
+                console.error('Error generating code:', error);
                 showToast('Connection error', 'error');
             }
 
             showLoading(false);
         }
 
-        // ============================================
-        // ACTIVATION CODE MODAL FUNCTIONS
-        // ============================================
-        function showActivationCodeModal(code, customerName, phone, packageName, hours, newBalance) {
+        function showActivationCodeModal(code, packageName, hours, amount) {
             document.getElementById('activationCodeDisplay').textContent = code;
-            document.getElementById('codeCustomerName').textContent = customerName;
-            document.getElementById('codeCustomerPhone').textContent = phone;
             document.getElementById('codePackageName').textContent = packageName;
             document.getElementById('codeHoursAdded').textContent = hours + ' hours';
-            document.getElementById('codeNewBalance').textContent = newBalance + ' hours';
+            document.getElementById('codeAmountCollect').textContent = '$' + amount;
             
             // Reset copy button state
             const copyBtn = document.getElementById('copyCodeBtn');
@@ -2085,13 +1861,18 @@
 
         function hideActivationCodeModal() {
             hideModal('activationCodeModal');
-            resetCreditForm();
+            
+            // Reset package selection
+            selectedPackage = null;
+            document.querySelectorAll('.package-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('generateSection').style.display = 'none';
         }
 
         function copyActivationCode() {
             const code = document.getElementById('activationCodeDisplay').textContent;
             
-            // Try modern clipboard API first
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(code).then(() => {
                     showCopySuccess();
@@ -2104,7 +1885,6 @@
         }
 
         function fallbackCopy(text) {
-            // Fallback for older browsers
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
@@ -2129,155 +1909,152 @@
             
             showToast('Code copied to clipboard!', 'success');
             
-            // Reset button after 2 seconds
             setTimeout(() => {
                 copyBtn.innerHTML = '<span>📋</span> Copy Code';
                 copyBtn.classList.remove('copied');
             }, 2000);
         }
 
-        function resetCreditForm() {
-            document.getElementById('creditSearchInput').value = '';
-            document.getElementById('creditCustomerCard').style.display = 'none';
-            document.getElementById('creditPackagesSection').style.display = 'none';
-            document.getElementById('newCustomerSection').style.display = 'none';
-            selectedCustomer = null;
-            selectedPackage = null;
-            
-            // Reset package selection visually
-            document.querySelectorAll('.package-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            updateCreditSummary();
-        }
-
-        async function createNewCustomer() {
-            const name = document.getElementById('newCustomerName').value.trim();
-            const phone = document.getElementById('newCustomerPhone').value.trim();
-
-            if (!name || !phone) {
-                showToast('Please enter name and phone', 'error');
-                return;
-            }
-
-            // Set as selected customer and show packages
-            selectedCustomer = { name, phone, balance: 0, isLinked: false };
-            renderCustomerCard(selectedCustomer);
-            document.getElementById('creditCustomerCard').style.display = 'block';
-            document.getElementById('creditPackagesSection').style.display = 'block';
-            document.getElementById('newCustomerSection').style.display = 'none';
-
-            showToast('Customer ready. Now select a package.', 'success');
-        }
-
-        // ============================================
-        // CUSTOMERS FUNCTIONS
-        // ============================================
-        async function loadCustomers() {
-            showLoading(true);
-
+        async function loadPendingCodes() {
             try {
-                const url = `${BACKEND_URL}?action=getAllCredits`;
+                const url = `${BACKEND_URL}?action=getPendingCodes`;
                 const response = await fetch(url);
                 const data = await response.json();
 
                 if (data.success) {
-                    renderCustomersList(data.customers || []);
+                    renderPendingCodes(data.codes || []);
                 }
             } catch (error) {
-                console.error('Error loading customers:', error);
+                console.error('Error loading pending codes:', error);
             }
-
-            showLoading(false);
         }
 
-        async function searchCustomers() {
-            const searchTerm = document.getElementById('customerSearchInput').value.trim();
-            
-            if (!searchTerm) {
-                loadCustomers();
-                return;
-            }
+        function renderPendingCodes(codes) {
+            const container = document.getElementById('pendingCodesList');
 
-            showLoading(true);
-
-            try {
-                const url = `${BACKEND_URL}?action=searchCreditsByPhone&phone=${encodeURIComponent(searchTerm)}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.success) {
-                    renderCustomersList(data.results || []);
-                }
-            } catch (error) {
-                console.error('Error searching customers:', error);
-            }
-
-            showLoading(false);
-        }
-
-        function renderCustomersList(customers) {
-            const container = document.getElementById('customersList');
-
-            if (customers.length === 0) {
+            if (codes.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">👥</div>
-                        <p class="empty-state-text">No customers found</p>
+                        <div class="empty-state-icon">🎫</div>
+                        <p class="empty-state-text">No pending codes</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = customers.map(customer => `
-                <div class="customer-list-item" onclick="showCustomerDetails('${customer.phone}', '${customer.name || ''}', ${customer.balance || 0}, '${customer.telegramId || ''}', ${customer.totalPurchased || 0}, ${customer.totalUsed || 0})">
+            container.innerHTML = codes.map(code => `
+                <div class="code-item">
+                    <div class="code-display">${code.code}</div>
+                    <div class="code-info">
+                        <div class="code-package">${code.packageName} Package</div>
+                        <div class="code-details">${code.hours} hours • Created: ${code.createdDate}</div>
+                    </div>
+                    <span class="booking-badge badge-pending">⏳ Pending</span>
+                    <div class="booking-actions">
+                        <button class="btn btn-danger" onclick="deleteCode('${code.code}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteCode(code) {
+            if (!confirm('Delete this unused code?')) return;
+
+            showLoading(true);
+
+            try {
+                const params = new URLSearchParams({
+                    action: 'deletePendingCode',
+                    code: code
+                });
+
+                const url = `${BACKEND_URL}?${params.toString()}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Code deleted', 'success');
+                    loadPendingCodes();
+                } else {
+                    showToast(data.error || 'Failed to delete code', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting code:', error);
+                showToast('Connection error', 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // ============================================
+        // CUSTOMERS FUNCTIONS
+        // ============================================
+        async function loadActivatedAccounts() {
+            showLoading(true);
+
+            try {
+                const url = `${BACKEND_URL}?action=getActivatedAccounts`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderActivatedAccounts(data.accounts || []);
+                    
+                    // Update stats
+                    document.getElementById('statTotalCustomers').textContent = data.count || 0;
+                    const totalBalance = (data.accounts || []).reduce((sum, a) => sum + (a.balance || 0), 0);
+                    document.getElementById('statTotalCreditsBalance').textContent = totalBalance;
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+            }
+
+            showLoading(false);
+        }
+
+        function renderActivatedAccounts(accounts) {
+            const container = document.getElementById('customersList');
+
+            if (accounts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p class="empty-state-text">No activated accounts yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = accounts.map(account => `
+                <div class="customer-list-item" onclick="showCustomerDetails('${account.telegramId}', '${account.name || 'Unknown'}', ${account.balance || 0}, ${account.totalPurchased || 0}, ${account.totalUsed || 0}, '${account.activatedDate || ''}')">
                     <div class="customer-list-info">
-                        <div class="customer-list-name">${customer.name || 'Unknown'}</div>
-                        <div class="customer-list-phone">📞 ${customer.phone} ${customer.isLinked ? '✅' : '⏳'}</div>
+                        <div class="customer-list-name">${account.name || 'Unknown'}</div>
+                        <div class="customer-list-phone">📱 Telegram ID: ${account.telegramId}</div>
                     </div>
                     <div class="customer-list-balance">
-                        <div class="customer-list-balance-value">${customer.balance || 0}</div>
+                        <div class="customer-list-balance-value">${account.balance || 0}</div>
                         <div class="customer-list-balance-label">hours</div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function showCustomerDetails(phone, name, balance, telegramId, totalPurchased, totalUsed) {
-            viewingCustomer = { phone, name, balance, telegramId, totalPurchased, totalUsed };
-
+        function showCustomerDetails(telegramId, name, balance, totalPurchased, totalUsed, activatedDate) {
             document.getElementById('viewCustomerContent').innerHTML = `
-                <div class="customer-card" style="margin-bottom: 16px;">
-                    <div class="customer-header">
-                        <div>
-                            <div class="customer-name">${name || 'Unknown'}</div>
-                            <div class="customer-phone">📞 ${phone}</div>
-                            <div class="customer-status">${telegramId ? 'Telegram Connected ✅' : 'Pending Activation ⏳'}</div>
-                        </div>
-                        <div class="customer-balance">
-                            <div class="customer-balance-label">Balance</div>
-                            <div class="customer-balance-value">${balance} hrs</div>
-                        </div>
-                    </div>
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+                    <div style="font-size: 24px; font-weight: 700;">${name}</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">📱 Telegram ID: ${telegramId}</div>
+                    <div style="font-size: 32px; font-weight: 700; margin-top: 12px;">${balance} hrs</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Current Balance</div>
                 </div>
                 <div class="summary-box">
                     <div class="summary-row"><span>Total Purchased</span><span>${totalPurchased} hours</span></div>
                     <div class="summary-row"><span>Total Used</span><span>${totalUsed} hours</span></div>
-                    <div class="summary-row"><span>Current Balance</span><span>${balance} hours</span></div>
+                    <div class="summary-row"><span>Activated</span><span>${activatedDate || 'Unknown'}</span></div>
                 </div>
             `;
 
             showModal('viewCustomerModal');
-        }
-
-        function addCreditsFromCustomerView() {
-            if (viewingCustomer) {
-                hideModal('viewCustomerModal');
-                switchTab('credits');
-                document.getElementById('creditSearchInput').value = viewingCustomer.phone;
-                searchCustomerForCredit();
-            }
         }
 
         // ============================================
@@ -2297,12 +2074,10 @@
                     document.getElementById('statTotalMembers').textContent = data.totalMembers || 0;
                     document.getElementById('statTotalCreditHours').textContent = data.totalCreditHours || 0;
 
-                    // Render package stats
                     if (data.packageStats) {
                         renderPackageStats(data.packageStats);
                     }
 
-                    // Render top customers
                     if (data.topCustomers) {
                         renderTopCustomers(data.topCustomers);
                     }
@@ -2371,7 +2146,6 @@
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if already logged in
             if (localStorage.getItem('adminLoggedIn') === 'true') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('show');
