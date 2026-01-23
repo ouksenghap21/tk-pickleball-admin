@@ -483,28 +483,35 @@
             font-size: 16px;
             font-weight: 700;
             color: var(--gray-800);
-            cursor: pointer;
             padding: 8px 16px;
             border-radius: 8px;
-            transition: background 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            gap: 8px;
         }
 
-        .date-selector-month:hover {
-            background: var(--gray-100);
-        }
-
-        .date-selector-month input[type="date"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
+        .calendar-input {
+            padding: 6px 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--gray-50);
             cursor: pointer;
+            font-family: inherit;
+        }
+
+        .calendar-input:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .calendar-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .date-selector-title {
@@ -1715,8 +1722,7 @@
                     <button class="date-nav-btn" onclick="navigateWeek(-1)">◀</button>
                     <div class="date-selector-month">
                         <span id="currentMonthYear">January 2026</span>
-                        <span style="font-size: 12px; margin-left: 4px;">📅</span>
-                        <input type="date" id="hiddenDatePicker" onchange="onDatePickerChange(this.value)">
+                        <input type="date" id="calendarPicker" class="calendar-input" onchange="onDatePickerChange(this.value)">
                     </div>
                     <button class="date-nav-btn" onclick="navigateWeek(1)">▶</button>
                 </div>
@@ -2265,8 +2271,8 @@
         function updateMonthYearDisplay() {
             const monthYear = selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             document.getElementById('currentMonthYear').textContent = monthYear;
-            // Also update the hidden date picker value
-            document.getElementById('hiddenDatePicker').value = formatDateForAPI(selectedDate);
+            // Also update the calendar picker value
+            document.getElementById('calendarPicker').value = formatDateForAPI(selectedDate);
         }
 
         function selectDate(offset) {
