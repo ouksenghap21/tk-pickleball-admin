@@ -2491,58 +2491,72 @@
         }
 
         // Lookup credit balance when phone is entered
-        async function lookupCreditBalance() {
-            const phone = document.getElementById('newBookingPhone').value.trim();
+        // Lookup credit balance when phone is entered
+async function lookupCreditBalance() {
+    const phone = document.getElementById('newBookingPhone').value.trim();
+    
+    console.log('lookupCreditBalance called, phone:', phone);
+    
+    // Reset display
+    document.getElementById('creditBalanceInfo').style.display = 'none';
+    document.getElementById('noCreditInfo').style.display = 'none';
+    customerCreditBalance = 0;
+    customerCreditName = '';
+    
+    // Debounce - wait for user to stop typing
+    clearTimeout(lookupTimeout);
+    
+    if (phone.length < 6) {
+        console.log('Phone too short, skipping lookup');
+        updateNewBookingPrice();
+        return;
+    }
+    
+    lookupTimeout = setTimeout(async () => {
+        console.log('Making API call for phone:', phone);
+        try {
+            const url = `${BACKEND_URL}?action=checkCreditsByPhone&phone=${encodeURIComponent(phone)}`;
+            console.log('Fetch URL:', url);
             
-            // Reset display
-            document.getElementById('creditBalanceInfo').style.display = 'none';
-            document.getElementById('noCreditInfo').style.display = 'none';
-            customerCreditBalance = 0;
-            customerCreditName = '';
+            const response = await fetch(url);
+            console.log('Response status:', response.status);
             
-            // Debounce - wait for user to stop typing
-            clearTimeout(lookupTimeout);
+            const data = await response.json();
+            console.log('Response data:', data);
             
-            if (phone.length < 6) {
-                updateNewBookingPrice();
-                return;
+            if (data.success && data.hasCredits) {
+                customerCreditBalance = parseFloat(data.balance) || 0;
+                customerCreditName = data.name || '';
+                
+                console.log('Credits found! Balance:', customerCreditBalance, 'Name:', customerCreditName);
+                
+                document.getElementById('creditBalanceValue').textContent = customerCreditBalance;
+                document.getElementById('creditCustomerName').textContent = customerCreditName;
+                document.getElementById('creditBalanceInfo').style.display = 'block';
+                document.getElementById('noCreditInfo').style.display = 'none';
+                
+                // Auto-fill name if empty
+                const nameInput = document.getElementById('newBookingName');
+                if (!nameInput.value.trim() && customerCreditName) {
+                    nameInput.value = customerCreditName;
+                }
+                
+                // If credits found, suggest using credits
+                if (customerCreditBalance > 0) {
+                    document.getElementById('newBookingPayment').value = 'credits';
+                }
+            } else {
+                console.log('No credits found or error:', data);
+                document.getElementById('creditBalanceInfo').style.display = 'none';
+                document.getElementById('noCreditInfo').style.display = 'block';
             }
             
-            lookupTimeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`${BACKEND_URL}?action=checkCreditsByPhone&phone=${encodeURIComponent(phone)}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.hasCredits) {
-                        customerCreditBalance = parseFloat(data.balance) || 0;
-                        customerCreditName = data.name || '';
-                        
-                        document.getElementById('creditBalanceValue').textContent = customerCreditBalance;
-                        document.getElementById('creditCustomerName').textContent = customerCreditName;
-                        document.getElementById('creditBalanceInfo').style.display = 'block';
-                        document.getElementById('noCreditInfo').style.display = 'none';
-                        
-                        // Auto-fill name if empty
-                        const nameInput = document.getElementById('newBookingName');
-                        if (!nameInput.value.trim() && customerCreditName) {
-                            nameInput.value = customerCreditName;
-                        }
-                        
-                        // If credits found, suggest using credits
-                        if (customerCreditBalance > 0) {
-                            document.getElementById('newBookingPayment').value = 'credits';
-                        }
-                    } else {
-                        document.getElementById('creditBalanceInfo').style.display = 'none';
-                        document.getElementById('noCreditInfo').style.display = 'block';
-                    }
-                    
-                    updateNewBookingPrice();
-                } catch (error) {
-                    console.error('Credit lookup error:', error);
-                }
-            }, 500);
+            updateNewBookingPrice();
+        } catch (error) {
+            console.error('Credit lookup error:', error);
         }
+    }, 500);
+}
 
         function updateNewBookingPrice() {
             const duration = parseInt(document.getElementById('newBookingDuration').value) || 1;
