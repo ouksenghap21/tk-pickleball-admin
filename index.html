@@ -1874,7 +1874,17 @@
 
             <div class="form-group">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" id="newBookingPhone" class="form-input" placeholder="Enter phone">
+                <input type="tel" id="newBookingPhone" class="form-input" placeholder="Enter phone" oninput="lookupCreditBalance()">
+                <div id="creditBalanceInfo" style="display: none; margin-top: 8px; padding: 12px; background: var(--success-light); border-radius: 10px; color: var(--success);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600;">💳 Credit Member</span>
+                        <span style="font-size: 18px; font-weight: 800;"><span id="creditBalanceValue">0</span> hrs</span>
+                    </div>
+                    <div style="font-size: 12px; margin-top: 4px;" id="creditCustomerName"></div>
+                </div>
+                <div id="noCreditInfo" style="display: none; margin-top: 8px; padding: 10px; background: var(--gray-100); border-radius: 10px; color: var(--gray-600); font-size: 13px;">
+                    ℹ️ No credit account found for this phone
+                </div>
             </div>
 
             <div class="form-row">
@@ -1926,17 +1936,41 @@
 
             <div class="form-group">
                 <label class="form-label">Payment Method</label>
-                <select id="newBookingPayment" class="form-input">
+                <select id="newBookingPayment" class="form-input" onchange="updateNewBookingPrice()">
                     <option value="cash">💵 Cash (Pay on Arrival)</option>
-                    <option value="credits">🎫 Credits</option>
+                    <option value="credits">🎫 Use Credits</option>
                 </select>
             </div>
 
-            <div class="summary-box">
-                <div class="summary-row">
-                    <span>Total</span>
-                    <span style="font-size: 20px; font-weight: 800; color: var(--primary);">$<span id="newBookingPrice">15</span></span>
+            <!-- Payment Summary -->
+            <div class="summary-box" id="paymentSummary">
+                <div class="summary-row" id="summaryTotalHours">
+                    <span>Total Hours Needed</span>
+                    <span><span id="totalHoursNeeded">1</span> hrs</span>
                 </div>
+                <div class="summary-row" id="summaryCreditsUsed" style="display: none;">
+                    <span>🎫 Credits Used</span>
+                    <span style="color: var(--success);"><span id="creditsToUse">0</span> hrs</span>
+                </div>
+                <div class="summary-row" id="summaryCreditsRemaining" style="display: none;">
+                    <span>Credits Remaining After</span>
+                    <span><span id="creditsRemaining">0</span> hrs</span>
+                </div>
+                <div class="summary-row" id="summaryCashDue">
+                    <span>💵 Cash Due</span>
+                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$<span id="newBookingPrice">15</span></span>
+                </div>
+            </div>
+
+            <!-- Partial Payment Notice -->
+            <div id="partialPaymentNotice" style="display: none; padding: 12px 16px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; margin-bottom: 16px; color: var(--primary); font-size: 13px;">
+                <strong>💳+💵 Partial Payment</strong><br>
+                Credits will cover <span id="partialCreditsHours">0</span> hrs, remaining <span id="partialCashHours">0</span> hrs paid by cash ($<span id="partialCashAmount">0</span>)
+            </div>
+
+            <!-- Insufficient Credits Warning -->
+            <div id="insufficientCreditsWarning" style="display: none; padding: 12px 16px; background: var(--warning-light); border-radius: 10px; margin-bottom: 16px; color: var(--warning); font-size: 13px;">
+                ⚠️ Not enough credits. Need <span id="hoursShort">0</span> more hours. Booking will be <strong>Partial Payment</strong> or select Cash.
             </div>
 
             <div class="modal-buttons">
@@ -2070,6 +2104,9 @@
         let selectedDate = new Date();
         let currentView = 'list';
         let dateOffset = 0;
+        let customerCreditBalance = 0;
+        let customerCreditName = '';
+        let lookupTimeout = null;
 
         // ============================================
         // LOGIN
@@ -2440,8 +2477,71 @@
             document.getElementById('newBookingCourts').value = '1';
             document.getElementById('newBookingTime').value = '08:00';
             document.getElementById('newBookingPayment').value = 'cash';
+            
+            // Reset credit balance info
+            customerCreditBalance = 0;
+            customerCreditName = '';
+            document.getElementById('creditBalanceInfo').style.display = 'none';
+            document.getElementById('noCreditInfo').style.display = 'none';
+            document.getElementById('partialPaymentNotice').style.display = 'none';
+            document.getElementById('insufficientCreditsWarning').style.display = 'none';
+            
             updateNewBookingPrice();
             showModal('newBookingModal');
+        }
+
+        // Lookup credit balance when phone is entered
+        async function lookupCreditBalance() {
+            const phone = document.getElementById('newBookingPhone').value.trim();
+            
+            // Reset display
+            document.getElementById('creditBalanceInfo').style.display = 'none';
+            document.getElementById('noCreditInfo').style.display = 'none';
+            customerCreditBalance = 0;
+            customerCreditName = '';
+            
+            // Debounce - wait for user to stop typing
+            clearTimeout(lookupTimeout);
+            
+            if (phone.length < 6) {
+                updateNewBookingPrice();
+                return;
+            }
+            
+            lookupTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`${BACKEND_URL}?action=checkCreditsByPhone&phone=${encodeURIComponent(phone)}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.hasCredits) {
+                        customerCreditBalance = parseFloat(data.balance) || 0;
+                        customerCreditName = data.name || '';
+                        
+                        document.getElementById('creditBalanceValue').textContent = customerCreditBalance;
+                        document.getElementById('creditCustomerName').textContent = customerCreditName;
+                        document.getElementById('creditBalanceInfo').style.display = 'block';
+                        document.getElementById('noCreditInfo').style.display = 'none';
+                        
+                        // Auto-fill name if empty
+                        const nameInput = document.getElementById('newBookingName');
+                        if (!nameInput.value.trim() && customerCreditName) {
+                            nameInput.value = customerCreditName;
+                        }
+                        
+                        // If credits found, suggest using credits
+                        if (customerCreditBalance > 0) {
+                            document.getElementById('newBookingPayment').value = 'credits';
+                        }
+                    } else {
+                        document.getElementById('creditBalanceInfo').style.display = 'none';
+                        document.getElementById('noCreditInfo').style.display = 'block';
+                    }
+                    
+                    updateNewBookingPrice();
+                } catch (error) {
+                    console.error('Credit lookup error:', error);
+                }
+            }, 500);
         }
 
         function updateNewBookingPrice() {
@@ -2449,8 +2549,68 @@
             const courts = parseInt(document.getElementById('newBookingCourts').value) || 1;
             const dateInput = document.getElementById('newBookingDate').value;
             const timeInput = document.getElementById('newBookingTime').value;
-            const total = calculateDynamicPrice(dateInput, timeInput, duration, courts);
-            document.getElementById('newBookingPrice').textContent = total;
+            const paymentMethod = document.getElementById('newBookingPayment').value;
+            
+            const totalHours = duration * courts;
+            const totalPrice = calculateDynamicPrice(dateInput, timeInput, duration, courts);
+            
+            // Update total hours display
+            document.getElementById('totalHoursNeeded').textContent = totalHours;
+            
+            // Hide all conditional elements first
+            document.getElementById('summaryCreditsUsed').style.display = 'none';
+            document.getElementById('summaryCreditsRemaining').style.display = 'none';
+            document.getElementById('partialPaymentNotice').style.display = 'none';
+            document.getElementById('insufficientCreditsWarning').style.display = 'none';
+            
+            if (paymentMethod === 'credits') {
+                // Calculate credits and cash breakdown
+                const creditsAvailable = customerCreditBalance;
+                
+                if (creditsAvailable <= 0) {
+                    // No credits available - show cash price
+                    document.getElementById('newBookingPrice').textContent = totalPrice;
+                    document.getElementById('insufficientCreditsWarning').style.display = 'block';
+                    document.getElementById('hoursShort').textContent = totalHours;
+                    return;
+                }
+                
+                if (creditsAvailable >= totalHours) {
+                    // Full credits - no cash needed
+                    document.getElementById('summaryCreditsUsed').style.display = 'flex';
+                    document.getElementById('summaryCreditsRemaining').style.display = 'flex';
+                    document.getElementById('creditsToUse').textContent = totalHours;
+                    document.getElementById('creditsRemaining').textContent = creditsAvailable - totalHours;
+                    document.getElementById('newBookingPrice').textContent = '0';
+                    document.getElementById('summaryCashDue').querySelector('span:first-child').innerHTML = '💵 Cash Due';
+                } else {
+                    // Partial payment - some credits + some cash
+                    const creditsUsed = creditsAvailable;
+                    const hoursRemaining = totalHours - creditsUsed;
+                    
+                    // Calculate cash for remaining hours at average rate
+                    const avgRate = totalPrice / totalHours;
+                    const cashDue = Math.round(hoursRemaining * avgRate);
+                    
+                    document.getElementById('summaryCreditsUsed').style.display = 'flex';
+                    document.getElementById('summaryCreditsRemaining').style.display = 'flex';
+                    document.getElementById('creditsToUse').textContent = creditsUsed;
+                    document.getElementById('creditsRemaining').textContent = 0;
+                    document.getElementById('newBookingPrice').textContent = cashDue;
+                    
+                    // Show partial payment notice
+                    document.getElementById('partialPaymentNotice').style.display = 'block';
+                    document.getElementById('partialCreditsHours').textContent = creditsUsed;
+                    document.getElementById('partialCashHours').textContent = hoursRemaining;
+                    document.getElementById('partialCashAmount').textContent = cashDue;
+                    
+                    document.getElementById('summaryCashDue').querySelector('span:first-child').innerHTML = '💵 Cash Due (Partial)';
+                }
+            } else {
+                // Cash payment
+                document.getElementById('newBookingPrice').textContent = totalPrice;
+                document.getElementById('summaryCashDue').querySelector('span:first-child').innerHTML = '💵 Cash Due';
+            }
         }
 
         function calculateDynamicPrice(dateStr, startTime, hours, courts) {
@@ -2472,26 +2632,70 @@
             const phone = document.getElementById('newBookingPhone').value.trim();
             const date = document.getElementById('newBookingDate').value;
             const time = document.getElementById('newBookingTime').value;
-            const duration = document.getElementById('newBookingDuration').value;
-            const courts = document.getElementById('newBookingCourts').value;
-            const payment = document.getElementById('newBookingPayment').value;
+            const duration = parseInt(document.getElementById('newBookingDuration').value);
+            const courts = parseInt(document.getElementById('newBookingCourts').value);
+            const selectedPayment = document.getElementById('newBookingPayment').value;
 
             if (!name || !phone || !date || !time) {
                 showToast('Please fill all fields', 'error');
                 return;
             }
 
+            const totalHours = duration * courts;
+            const totalPrice = calculateDynamicPrice(date, time, duration, courts);
+            
+            // Determine actual payment method and amounts
+            let paymentMethod = selectedPayment;
+            let creditsUsed = 0;
+            let cashDue = totalPrice;
+            
+            if (selectedPayment === 'credits') {
+                if (customerCreditBalance >= totalHours) {
+                    // Full credits
+                    paymentMethod = 'credits';
+                    creditsUsed = totalHours;
+                    cashDue = 0;
+                } else if (customerCreditBalance > 0) {
+                    // Partial payment
+                    paymentMethod = 'partial';
+                    creditsUsed = customerCreditBalance;
+                    const hoursRemaining = totalHours - creditsUsed;
+                    const avgRate = totalPrice / totalHours;
+                    cashDue = Math.round(hoursRemaining * avgRate);
+                } else {
+                    // No credits - switch to cash
+                    paymentMethod = 'cash';
+                    creditsUsed = 0;
+                    cashDue = totalPrice;
+                }
+            }
+
             showLoading(true);
             try {
                 const params = new URLSearchParams({
-                    action: 'book', name, phone, date, time, duration, courts,
-                    payment_method: payment, source: 'admin'
+                    action: 'book',
+                    name: name,
+                    phone: phone,
+                    date: date,
+                    time: time,
+                    duration: duration,
+                    courts: courts,
+                    payment_method: paymentMethod,
+                    credits_used: creditsUsed,
+                    cash_due: cashDue,
+                    source: 'admin'
                 });
                 const response = await fetch(`${BACKEND_URL}?${params}`);
                 const data = await response.json();
 
                 if (data.success || data.status === 'success') {
-                    showToast('Booking created!', 'success');
+                    let msg = 'Booking created!';
+                    if (paymentMethod === 'credits') {
+                        msg = `Booking created! ${creditsUsed} credit hrs used.`;
+                    } else if (paymentMethod === 'partial') {
+                        msg = `Booking created! ${creditsUsed} credits + $${cashDue} cash.`;
+                    }
+                    showToast(msg, 'success');
                     hideModal('newBookingModal');
                     loadBookings();
                 } else {
