@@ -418,6 +418,11 @@
             color: #2e7d32;
         }
 
+        .badge-partial {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
         .booking-actions {
             display: flex;
             gap: 8px;
@@ -1187,44 +1192,93 @@
             </div>
         </div>
 
-        <!-- ============================================
-             STATS TAB
-             ============================================ -->
-        <div id="tab-stats" class="content-section">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotalBookings">0</div>
-                    <div class="stat-label">Total Bookings (30d)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">$<span id="statTotalRevenue">0</span></div>
-                    <div class="stat-label">Total Revenue (30d)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotalMembers">0</div>
-                    <div class="stat-label">Credit Members</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotalCreditHours">0</div>
-                    <div class="stat-label">Credit Hours Sold</div>
-                </div>
-            </div>
+       ============================================
+     STATS TAB - ENHANCED
+     ============================================ -->
+<div id="tab-stats" class="content-section">
+    <div class="section-header">
+        <h2 class="section-title">📊 Statistics</h2>
+        <span id="statsDateRange" style="font-size: 13px; color: #666;">Loading...</span>
+    </div>
 
-            <div class="card">
-                <h3 class="card-title" style="margin-bottom: 16px;">📦 Credit Packages Sold</h3>
-                <div id="packageStats">
-                    <!-- Package stats will be inserted here -->
-                </div>
-            </div>
+    <!-- Overview Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="statTotalBookings">0</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">$<span id="statTotalRevenue">0</span></div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statTotalMembers">0</div>
+            <div class="stat-label">Credit Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statTotalCreditHours">0</div>
+            <div class="stat-label">Credit Hours Sold</div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3 class="card-title" style="margin-bottom: 16px;">🏆 Top Customers</h3>
-                <div id="topCustomers">
-                    <!-- Top customers will be inserted here -->
-                </div>
+    <!-- Revenue Breakdown Card -->
+    <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">💰 Revenue Breakdown (Last 30 Days)</h3>
+        <div class="summary-box">
+            <div class="summary-row">
+                <span>💵 Cash Bookings</span>
+                <span style="color: #ef6c00; font-weight: 600;">$<span id="statCashRevenue">0</span></span>
+            </div>
+            <div class="summary-row">
+                <span>🎫 Credit Packages Sold</span>
+                <span style="color: #2e7d32; font-weight: 600;">$<span id="statPackageRevenue">0</span></span>
+            </div>
+            <div class="summary-row" style="font-weight: 700; font-size: 18px; padding-top: 12px; border-top: 2px solid #667eea;">
+                <span>📊 Total Revenue</span>
+                <span style="color: #667eea;">$<span id="statCombinedRevenue">0</span></span>
             </div>
         </div>
     </div>
+
+    <!-- Booking Types Breakdown -->
+    <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">📅 Booking Types (Last 30 Days)</h3>
+        <div class="summary-box">
+            <div class="summary-row">
+                <span>💵 Cash Bookings</span>
+                <span id="statCashBookings">0</span>
+            </div>
+            <div class="summary-row">
+                <span>💳+💵 Partial (Credits + Cash)</span>
+                <span id="statPartialBookings">0</span>
+            </div>
+            <div class="summary-row">
+                <span>🎫 Full Credit Bookings</span>
+                <span id="statCreditBookings">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credit Packages Sold -->
+    <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">📦 Credit Packages Sold (Last 30 Days)</h3>
+        <div id="packageStats">
+            <div class="empty-state">
+                <p class="empty-state-text">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Customers -->
+    <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">🏆 Top Customers (Last 30 Days)</h3>
+        <div id="topCustomers">
+            <div class="empty-state">
+                <p class="empty-state-text">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- ============================================
          NEW BOOKING MODAL
@@ -1630,9 +1684,14 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
 
             container.innerHTML = bookings.map(booking => {
                 const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
-                const paymentBadge = booking.payment_method === 'credits' 
-                    ? '<span class="booking-badge badge-credits">🎫 Credits</span>'
-                    : '<span class="booking-badge badge-cash">💵 Cash</span>';
+                let paymentBadge;
+if (booking.payment_method === 'credits') {
+    paymentBadge = '<span class="booking-badge badge-credits">🎫 Credits</span>';
+} else if (booking.payment_method === 'partial') {
+    paymentBadge = '<span class="booking-badge badge-partial">💳+💵 Partial</span>';
+} else {
+    paymentBadge = '<span class="booking-badge badge-cash">💵 Cash</span>';
+}
 
                 return `
                     <div class="booking-item" data-booking-id="${booking.booking_id}">
@@ -2121,54 +2180,146 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
         // STATS FUNCTIONS
         // ============================================
         async function loadStats() {
-            showLoading(true);
+    showLoading(true);
 
-            try {
-                const url = `${BACKEND_URL}?action=getDashboardStats`;
-                const response = await fetch(url);
-                const data = await response.json();
+    try {
+        const url = `${BACKEND_URL}?action=getDashboardStats`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-                if (data.success) {
-                    document.getElementById('statTotalBookings').textContent = data.totalBookings || 0;
-                    document.getElementById('statTotalRevenue').textContent = data.totalRevenue || 0;
-                    document.getElementById('statTotalMembers').textContent = data.totalMembers || 0;
-                    document.getElementById('statTotalCreditHours').textContent = data.totalCreditHours || 0;
-
-                    if (data.packageStats) {
-                        renderPackageStats(data.packageStats);
-                    }
-
-                    if (data.topCustomers) {
-                        renderTopCustomers(data.topCustomers);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
+        if (data.success) {
+            // Date range display
+            if (data.dateRange) {
+                document.getElementById('statsDateRange').textContent = 
+                    `${data.dateRange.from} to ${data.dateRange.to}`;
+            } else {
+                const today = new Date();
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                document.getElementById('statsDateRange').textContent = 
+                    `${formatDate(thirtyDaysAgo)} to ${formatDate(today)}`;
             }
 
-            showLoading(false);
+            // Basic stats
+            document.getElementById('statTotalBookings').textContent = data.totalBookings || 0;
+            document.getElementById('statTotalRevenue').textContent = data.totalRevenue || 0;
+            document.getElementById('statTotalMembers').textContent = data.totalMembers || 0;
+            document.getElementById('statTotalCreditHours').textContent = data.totalCreditHours || 0;
+
+            // Revenue breakdown
+            const cashRevenue = data.cashRevenue || 0;
+            const packageRevenue = data.packageRevenue || 0;
+            const combinedRevenue = cashRevenue + packageRevenue;
+            
+            document.getElementById('statCashRevenue').textContent = cashRevenue;
+            document.getElementById('statPackageRevenue').textContent = packageRevenue;
+            document.getElementById('statCombinedRevenue').textContent = combinedRevenue;
+
+            // Booking types breakdown
+            if (document.getElementById('statCashBookings')) {
+                document.getElementById('statCashBookings').textContent = data.cashBookingsCount || 0;
+            }
+            if (document.getElementById('statPartialBookings')) {
+                document.getElementById('statPartialBookings').textContent = data.partialBookingsCount || 0;
+            }
+            if (document.getElementById('statCreditBookings')) {
+                document.getElementById('statCreditBookings').textContent = data.creditBookingsCount || 0;
+            }
+
+            // Package stats
+            if (data.packageStats) {
+                renderPackageStats(data.packageStats);
+            }
+
+            // Top customers
+            if (data.topCustomers) {
+                renderTopCustomers(data.topCustomers);
+            }
+        } else {
+            showToast(data.error || 'Failed to load stats', 'error');
         }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        showToast('Connection error loading stats', 'error');
+    }
+
+    showLoading(false);
+}
 
         function renderPackageStats(stats) {
-            const container = document.getElementById('packageStats');
-            container.innerHTML = Object.entries(stats).map(([name, count]) => `
-                <div class="summary-row">
-                    <span>📦 ${name}</span>
-                    <span>${count} sold</span>
-                </div>
-            `).join('') || '<p style="color: #999;">No data available</p>';
-        }
+    const container = document.getElementById('packageStats');
+    
+    // Package prices for reference
+    const packagePrices = {
+        'Starter': 65,
+        'Value': 120,
+        'Premium': 220,
+        'Ultimate': 400
+    };
+    
+    const entries = Object.entries(stats).filter(([name, count]) => count > 0);
+    
+    if (entries.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="padding: 20px;">
+                <p class="empty-state-text">No packages sold in this period</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let totalPackageRevenue = 0;
+    
+    container.innerHTML = `
+        <div class="summary-box">
+            ${entries.map(([name, count]) => {
+                const price = packagePrices[name] || 0;
+                const revenue = price * count;
+                totalPackageRevenue += revenue;
+                return `
+                    <div class="summary-row">
+                        <span>📦 ${name} (${count} sold)</span>
+                        <span style="color: #2e7d32;">$${revenue}</span>
+                    </div>
+                `;
+            }).join('')}
+            <div class="summary-row" style="font-weight: 700; border-top: 1px solid #ddd; padding-top: 12px; margin-top: 8px;">
+                <span>Total Package Revenue</span>
+                <span style="color: #667eea;">$${totalPackageRevenue}</span>
+            </div>
+        </div>
+    `;
+}
 
-        function renderTopCustomers(customers) {
-            const container = document.getElementById('topCustomers');
-            container.innerHTML = customers.map((customer, index) => `
-                <div class="summary-row">
-                    <span>${index + 1}. ${customer.name}</span>
-                    <span>${customer.bookings} bookings</span>
-                </div>
-            `).join('') || '<p style="color: #999;">No data available</p>';
-        }
-
+function renderTopCustomers(customers) {
+    const container = document.getElementById('topCustomers');
+    
+    if (!customers || customers.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="padding: 20px;">
+                <p class="empty-state-text">No booking data available</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="summary-box">
+            ${customers.map((customer, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1) + '.';
+                return `
+                    <div class="summary-row">
+                        <span>${medal} ${customer.name}</span>
+                        <span>
+                            <strong>${customer.bookings}</strong> bookings
+                            ${customer.totalHours ? '• ' + customer.totalHours + ' hrs' : ''}
+                        </span>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
         // ============================================
         // UTILITY FUNCTIONS
         // ============================================
