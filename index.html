@@ -398,6 +398,87 @@
             color: #2e7d32;
         }
 
+        .badge-paid {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-pending-payment {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.badge-unpaid {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.badge-noshow {
+    background: #f5f5f5;
+    color: #757575;
+}
+
+.btn-mark-paid {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.btn-mark-paid:hover {
+    background: #c8e6c9;
+}
+
+.btn-mark-unpaid {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+}
+
+.btn-mark-unpaid:hover {
+    background: #ffecb3;
+}
+
+.payment-status-dropdown {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.revenue-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.revenue-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.revenue-value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.revenue-value.confirmed {
+    color: #2e7d32;
+}
+
+.revenue-value.pending {
+    color: #f57f17;
+}
+
+.revenue-value.total {
+    color: #667eea;
+}
+
         .badge-cash {
             background: #fff3e0;
             color: #ef6c00;
@@ -1223,22 +1304,53 @@
 
     <!-- Revenue Breakdown Card -->
     <div class="card">
-        <h3 class="card-title" style="margin-bottom: 16px;">💰 Revenue Breakdown (Last 30 Days)</h3>
-        <div class="summary-box">
-            <div class="summary-row">
-                <span>💵 Cash Bookings</span>
-                <span style="color: #ef6c00; font-weight: 600;">$<span id="statCashRevenue">0</span></span>
-            </div>
-            <div class="summary-row">
-                <span>🎫 Credit Packages Sold</span>
-                <span style="color: #2e7d32; font-weight: 600;">$<span id="statPackageRevenue">0</span></span>
-            </div>
-            <div class="summary-row" style="font-weight: 700; font-size: 18px; padding-top: 12px; border-top: 2px solid #667eea;">
-                <span>📊 Total Revenue</span>
-                <span style="color: #667eea;">$<span id="statCombinedRevenue">0</span></span>
-            </div>
+    <h3 class="card-title" style="margin-bottom: 16px;">💰 Revenue Breakdown (Last 30 Days)</h3>
+    
+    <div class="revenue-card">
+        <span class="revenue-label">✓ Confirmed Cash Revenue</span>
+        <span class="revenue-value confirmed">$<span id="statCashRevenue">0</span></span>
+    </div>
+    
+    <div class="revenue-card">
+        <span class="revenue-label">⏳ Pending Cash (Not Yet Collected)</span>
+        <span class="revenue-value pending">$<span id="statPendingRevenue">0</span></span>
+    </div>
+    
+    <div class="revenue-card">
+        <span class="revenue-label">🎫 Credit Packages Sold</span>
+        <span class="revenue-value confirmed">$<span id="statPackageRevenue">0</span></span>
+    </div>
+    
+    <div style="border-top: 2px solid #667eea; margin-top: 12px; padding-top: 12px;">
+        <div class="revenue-card" style="background: #e8eaf6;">
+            <span class="revenue-label" style="font-weight: 600;">📊 Total Confirmed Revenue</span>
+            <span class="revenue-value total">$<span id="statCombinedRevenue">0</span></span>
         </div>
     </div>
+</div>
+
+<!-- Payment Status Breakdown - NEW -->
+<div class="card">
+    <h3 class="card-title" style="margin-bottom: 16px;">📋 Payment Status (Last 30 Days)</h3>
+    <div class="summary-box">
+        <div class="summary-row">
+            <span>✓ Paid</span>
+            <span style="color: #2e7d32;"><span id="statPaidBookings">0</span> bookings</span>
+        </div>
+        <div class="summary-row">
+            <span>⏳ Pending</span>
+            <span style="color: #f57f17;"><span id="statPendingBookings">0</span> bookings</span>
+        </div>
+        <div class="summary-row">
+            <span>✗ Unpaid</span>
+            <span style="color: #c62828;"><span id="statUnpaidBookings">0</span> bookings</span>
+        </div>
+        <div class="summary-row">
+            <span>👻 No-Show</span>
+            <span style="color: #757575;"><span id="statNoShowBookings">0</span> bookings</span>
+        </div>
+    </div>
+</div>
 
     <!-- Booking Types Breakdown -->
     <div class="card">
@@ -1668,66 +1780,186 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
         }
 
         function renderBookings(bookings) {
-            const container = document.getElementById('bookingsList');
+    const container = document.getElementById('bookingsList');
 
-            if (bookings.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📅</div>
-                        <p class="empty-state-text">No bookings for this date</p>
-                    </div>
+    if (bookings.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <p class="empty-state-text">No bookings for this date</p>
+            </div>
+        `;
+        return;
+    }
+
+    bookings.sort((a, b) => a.time.localeCompare(b.time));
+
+    container.innerHTML = bookings.map(booking => {
+        const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
+        
+        // Payment method badge
+        let paymentBadge;
+        if (booking.payment_method === 'credits') {
+            paymentBadge = '<span class="booking-badge badge-credits">🎫 Credits</span>';
+        } else if (booking.payment_method === 'partial') {
+            const cashDue = booking.cash_due || 0;
+            paymentBadge = `<span class="booking-badge badge-partial">💳+💵 $${cashDue}</span>`;
+        } else {
+            paymentBadge = `<span class="booking-badge badge-cash">💵 $${booking.amount}</span>`;
+        }
+        
+        // Payment status badge
+        const paymentStatus = booking.payment_status || 'pending';
+        let statusBadge = '';
+        let actionButtons = '';
+        
+        if (booking.payment_method === 'credits') {
+            // Credits are always paid - no action needed
+            statusBadge = '<span class="booking-badge badge-paid">✓ Paid</span>';
+        } else {
+            // Show status badge based on current status
+            if (paymentStatus === 'paid') {
+                statusBadge = '<span class="booking-badge badge-paid">✓ Paid</span>';
+                actionButtons = `
+                    <button class="btn btn-mark-unpaid" onclick="updatePaymentStatus('${booking.booking_id}', 'pending')">
+                        ↩ Undo
+                    </button>
                 `;
-                return;
+            } else if (paymentStatus === 'unpaid') {
+                statusBadge = '<span class="booking-badge badge-unpaid">✗ Unpaid</span>';
+                actionButtons = `
+                    <button class="btn btn-mark-paid" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">
+                        ✓ Mark Paid
+                    </button>
+                `;
+            } else if (paymentStatus === 'no-show') {
+                statusBadge = '<span class="booking-badge badge-noshow">👻 No-Show</span>';
+                actionButtons = `
+                    <button class="btn btn-mark-paid" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">
+                        ✓ Mark Paid
+                    </button>
+                `;
+            } else {
+                // pending
+                statusBadge = '<span class="booking-badge badge-pending-payment">⏳ Pending</span>';
+                actionButtons = `
+                    <button class="btn btn-mark-paid" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">
+                        ✓ Paid
+                    </button>
+                    <select class="payment-status-dropdown" onchange="updatePaymentStatus('${booking.booking_id}', this.value)">
+                        <option value="">More...</option>
+                        <option value="unpaid">✗ Unpaid</option>
+                        <option value="no-show">👻 No-Show</option>
+                    </select>
+                `;
             }
+        }
 
-            bookings.sort((a, b) => a.time.localeCompare(b.time));
-
-            container.innerHTML = bookings.map(booking => {
-                const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
-                let paymentBadge;
-if (booking.payment_method === 'credits') {
-    paymentBadge = '<span class="booking-badge badge-credits">🎫 Credits</span>';
-} else if (booking.payment_method === 'partial') {
-    paymentBadge = '<span class="booking-badge badge-partial">💳+💵 Partial</span>';
-} else {
-    paymentBadge = '<span class="booking-badge badge-cash">💵 Cash</span>';
+        return `
+            <div class="booking-item" data-booking-id="${booking.booking_id}">
+                <div class="booking-time">${timeLabel}</div>
+                <div class="booking-info">
+                    <div class="booking-name">${booking.name}</div>
+                    <div class="booking-details">
+                        📞 ${booking.phone} • 🎾 ${booking.courts} court(s) • ⏱️ ${booking.duration} hr(s)
+                    </div>
+                </div>
+                <div class="booking-meta">
+                    ${paymentBadge}
+                    ${statusBadge}
+                </div>
+                <div class="booking-actions">
+                    ${actionButtons}
+                    <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}')">Cancel</button>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
-                return `
-                    <div class="booking-item" data-booking-id="${booking.booking_id}">
-                        <div class="booking-time">${timeLabel}</div>
-                        <div class="booking-info">
-                            <div class="booking-name">${booking.name}</div>
-                            <div class="booking-details">
-                                📞 ${booking.phone} • 🎾 ${booking.courts} court(s) • ⏱️ ${booking.duration} hr(s)
-                            </div>
-                        </div>
-                        <div class="booking-meta">
-                            ${paymentBadge}
-                        </div>
-                        <div class="booking-actions">
-                            <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}')">Cancel</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+async function updatePaymentStatus(bookingId, status) {
+    // Reset dropdown if used
+    const dropdown = event?.target;
+    if (dropdown && dropdown.tagName === 'SELECT') {
+        dropdown.value = '';
+    }
+    
+    showLoading(true);
+
+    try {
+        const params = new URLSearchParams({
+            action: 'updatePaymentStatus',
+            booking_id: bookingId,
+            status: status,
+            staff: document.getElementById('staffName').textContent
+        });
+
+        const url = `${BACKEND_URL}?${params.toString()}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.success) {
+            const statusLabels = {
+                'paid': '✓ Paid',
+                'pending': '⏳ Pending',
+                'unpaid': '✗ Unpaid',
+                'no-show': '👻 No-Show'
+            };
+            showToast(`Payment marked as ${statusLabels[status] || status}`, 'success');
+            loadBookings(); // Refresh the list
+        } else {
+            showToast(data.error || 'Failed to update payment status', 'error');
         }
+    } catch (error) {
+        console.error('Error updating payment status:', error);
+        showToast('Connection error', 'error');
+    }
+
+    showLoading(false);
+}
 
         function updateBookingStats(bookings) {
-            const activeBookings = bookings.filter(b => b.status !== 'cancelled');
-            const totalBookings = activeBookings.length;
-            const totalHours = activeBookings.reduce((sum, b) => sum + (b.duration * b.courts), 0);
-            const cashBookings = activeBookings.filter(b => b.payment_method !== 'credits');
-            const totalRevenue = cashBookings.reduce((sum, b) => {
-    // Use stored amount if available, otherwise calculate
-    if (b.totalAmount) return sum + parseFloat(b.totalAmount);
-    return sum + calculateDynamicPrice(b.date, b.time, b.duration, b.courts);
-}, 0);
-
-            document.getElementById('statTodayBookings').textContent = totalBookings;
-            document.getElementById('statTodayHours').textContent = totalHours;
-            document.getElementById('statTodayRevenue').textContent = totalRevenue;
+    const activeBookings = bookings.filter(b => b.status !== 'cancelled');
+    const totalBookings = activeBookings.length;
+    const totalHours = activeBookings.reduce((sum, b) => sum + (b.duration * b.courts), 0);
+    
+    // Calculate revenue - only count PAID bookings
+    let confirmedRevenue = 0;
+    let pendingRevenue = 0;
+    
+    activeBookings.forEach(b => {
+        const paymentStatus = b.payment_status || 'pending';
+        
+        if (b.payment_method === 'credits') {
+            // Credits don't add to cash revenue
+        } else if (b.payment_method === 'partial') {
+            const cashDue = parseFloat(b.cash_due) || 0;
+            if (paymentStatus === 'paid') {
+                confirmedRevenue += cashDue;
+            } else if (paymentStatus === 'pending') {
+                pendingRevenue += cashDue;
+            }
+        } else {
+            // arrival/cash
+            const amount = parseFloat(b.amount) || 0;
+            if (paymentStatus === 'paid') {
+                confirmedRevenue += amount;
+            } else if (paymentStatus === 'pending') {
+                pendingRevenue += amount;
+            }
         }
+    });
+
+    document.getElementById('statTodayBookings').textContent = totalBookings;
+    document.getElementById('statTodayHours').textContent = totalHours;
+    
+    // Show confirmed + pending
+    const revenueDisplay = confirmedRevenue + (pendingRevenue > 0 ? ` (+$${pendingRevenue})` : '');
+    document.getElementById('statTodayRevenue').textContent = confirmedRevenue;
+    
+    // Optional: If you want to show pending separately
+    // You could add another stat card for pending revenue
+}
 
         // ============================================
         // NEW BOOKING FUNCTIONS
@@ -2192,12 +2424,6 @@ if (booking.payment_method === 'credits') {
             if (data.dateRange) {
                 document.getElementById('statsDateRange').textContent = 
                     `${data.dateRange.from} to ${data.dateRange.to}`;
-            } else {
-                const today = new Date();
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(today.getDate() - 30);
-                document.getElementById('statsDateRange').textContent = 
-                    `${formatDate(thirtyDaysAgo)} to ${formatDate(today)}`;
             }
 
             // Basic stats
@@ -2208,12 +2434,19 @@ if (booking.payment_method === 'credits') {
 
             // Revenue breakdown
             const cashRevenue = data.cashRevenue || 0;
+            const pendingRevenue = data.pendingRevenue || 0;
             const packageRevenue = data.packageRevenue || 0;
-            const combinedRevenue = cashRevenue + packageRevenue;
+            const confirmedRevenue = cashRevenue + packageRevenue;
             
             document.getElementById('statCashRevenue').textContent = cashRevenue;
             document.getElementById('statPackageRevenue').textContent = packageRevenue;
-            document.getElementById('statCombinedRevenue').textContent = combinedRevenue;
+            document.getElementById('statCombinedRevenue').textContent = confirmedRevenue;
+            
+            // Pending revenue (if element exists)
+            const pendingEl = document.getElementById('statPendingRevenue');
+            if (pendingEl) {
+                pendingEl.textContent = pendingRevenue;
+            }
 
             // Booking types breakdown
             if (document.getElementById('statCashBookings')) {
@@ -2224,6 +2457,20 @@ if (booking.payment_method === 'credits') {
             }
             if (document.getElementById('statCreditBookings')) {
                 document.getElementById('statCreditBookings').textContent = data.creditBookingsCount || 0;
+            }
+
+            // Payment status breakdown (if elements exist)
+            if (document.getElementById('statPaidBookings')) {
+                document.getElementById('statPaidBookings').textContent = data.paidBookingsCount || 0;
+            }
+            if (document.getElementById('statPendingBookings')) {
+                document.getElementById('statPendingBookings').textContent = data.pendingBookingsCount || 0;
+            }
+            if (document.getElementById('statUnpaidBookings')) {
+                document.getElementById('statUnpaidBookings').textContent = data.unpaidBookingsCount || 0;
+            }
+            if (document.getElementById('statNoShowBookings')) {
+                document.getElementById('statNoShowBookings').textContent = data.noShowBookingsCount || 0;
             }
 
             // Package stats
