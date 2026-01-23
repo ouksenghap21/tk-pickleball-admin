@@ -1870,7 +1870,7 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
                 </div>
                 <div class="booking-actions">
                     ${actionButtons}
-                    <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}')">Cancel</button>
+                    <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}', ${booking.credits_used || 0}, ${booking.cash_due || 0})">Cancel</button>
                 </div>
             </div>
         `;
@@ -2044,63 +2044,77 @@ async function updatePaymentStatus(bookingId, status) {
         // ============================================
         // CANCEL BOOKING FUNCTIONS
         // ============================================
-        function showCancelBookingModal(bookingId, name, time, duration, courts, paymentMethod, telegramId) {
-            bookingToCancel = { bookingId, name, time, duration, courts, paymentMethod, telegramId };
+        function showCancelBookingModal(bookingId, name, time, duration, courts, paymentMethod, telegramId, creditsUsed, cashDue) {
+    bookingToCancel = { bookingId, name, time, duration, courts, paymentMethod, telegramId, creditsUsed, cashDue };
 
-            const timeLabel = TIME_SLOTS.find(t => t.value === time)?.label || time;
-            const totalHours = duration * courts;
+    const timeLabel = TIME_SLOTS.find(t => t.value === time)?.label || time;
 
-            document.getElementById('cancelBookingDetails').innerHTML = `
-                <div class="summary-row"><span>Name</span><span>${name}</span></div>
-                <div class="summary-row"><span>Time</span><span>${timeLabel}</span></div>
-                <div class="summary-row"><span>Duration</span><span>${duration} hour(s)</span></div>
-                <div class="summary-row"><span>Courts</span><span>${courts}</span></div>
-                <div class="summary-row"><span>Payment</span><span>${paymentMethod === 'credits' ? '🎫 Credits' : '💵 Cash'}</span></div>
-            `;
+    // Payment display based on method
+    let paymentDisplay;
+    if (paymentMethod === 'credits') {
+        paymentDisplay = `🎫 Credits (${creditsUsed || duration * courts} hrs)`;
+    } else if (paymentMethod === 'partial') {
+        paymentDisplay = `💳+💵 Partial (${creditsUsed} hrs + $${cashDue} cash)`;
+    } else {
+        paymentDisplay = '💵 Cash';
+    }
 
-            const refundInfo = document.getElementById('cancelRefundInfo');
-            if (paymentMethod === 'credits') {
-                refundInfo.style.display = 'block';
-                document.getElementById('cancelRefundAmount').textContent = totalHours;
-            } else {
-                refundInfo.style.display = 'none';
-            }
+    document.getElementById('cancelBookingDetails').innerHTML = `
+        <div class="summary-row"><span>Name</span><span>${name}</span></div>
+        <div class="summary-row"><span>Time</span><span>${timeLabel}</span></div>
+        <div class="summary-row"><span>Duration</span><span>${duration} hour(s)</span></div>
+        <div class="summary-row"><span>Courts</span><span>${courts}</span></div>
+        <div class="summary-row"><span>Payment</span><span>${paymentDisplay}</span></div>
+    `;
 
-            showModal('cancelBookingModal');
-        }
+    // Show refund info for BOTH credits AND partial
+    const refundInfo = document.getElementById('cancelRefundInfo');
+    if ((paymentMethod === 'credits' || paymentMethod === 'partial') && creditsUsed > 0) {
+        refundInfo.style.display = 'block';
+        document.getElementById('cancelRefundAmount').textContent = creditsUsed;
+    } else {
+        refundInfo.style.display = 'none';
+    }
+
+    showModal('cancelBookingModal');
+}
 
         async function confirmCancelBooking() {
-            if (!bookingToCancel) return;
+    if (!bookingToCancel) return;
 
-            showLoading(true);
+    showLoading(true);
 
-            try {
-                const params = new URLSearchParams({
-                    action: 'cancelBookingAdmin',
-                    booking_id: bookingToCancel.bookingId,
-                    refund_credits: bookingToCancel.paymentMethod === 'credits' ? 'true' : 'false',
-                    telegram_id: bookingToCancel.telegramId || ''
-                });
+    try {
+        const params = new URLSearchParams({
+            action: 'cancelBookingAdmin',
+            booking_id: bookingToCancel.bookingId,
+            telegram_id: bookingToCancel.telegramId || ''
+        });
 
-                const url = `${BACKEND_URL}?${params.toString()}`;
-                const response = await fetch(url);
-                const data = await response.json();
+        const url = `${BACKEND_URL}?${params.toString()}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-                if (data.success) {
-                    showToast('Booking cancelled successfully', 'success');
-                    hideModal('cancelBookingModal');
-                    loadBookings();
-                } else {
-                    showToast(data.error || 'Failed to cancel booking', 'error');
-                }
-            } catch (error) {
-                console.error('Error cancelling booking:', error);
-                showToast('Connection error', 'error');
+        if (data.success) {
+            let message = 'Booking cancelled successfully';
+            if (data.refunded > 0) {
+                message += `. ${data.refunded} credit hours refunded.`;
             }
-
-            showLoading(false);
-            bookingToCancel = null;
+            showToast(message, 'success');
+            hideModal('cancelBookingModal');
+            loadBookings();
+        } else {
+            showToast(data.error || 'Failed to cancel booking', 'error');
         }
+    } catch (error) {
+        console.error('Error cancelling booking:', error);
+        showToast('Connection error', 'error');
+    }
+
+    showLoading(false);
+    bookingToCancel = null;
+}
+
 
         // ============================================
         // CREDITS FUNCTIONS - SIMPLIFIED!
