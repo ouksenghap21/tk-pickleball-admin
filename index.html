@@ -1430,7 +1430,35 @@
         // ============================================
         const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbySlkS8Yb3ACIfh5izbul6FfwTxgzrWg4_SnEMHsC21JyiaC1V9fak4GQFP4w3FvyjYPw/exec';
         const ADMIN_PIN = '1234'; // Change this to your desired PIN
-        const PRICE_PER_HOUR = 15;
+        // Dynamic Pricing Configuration
+const PRICING = {
+    WEEKDAY_OFFPEAK: 13,
+    WEEKDAY_PEAK: 15,
+    WEEKEND: 15,
+    PEAK_START_HOUR: 17
+};
+
+function calculateDynamicPrice(dateStr, startTime, hours, courts) {
+    const bookingDate = new Date(dateStr);
+    const startHour = parseInt(String(startTime).split(':')[0]);
+    const dayOfWeek = bookingDate.getDay();
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    
+    let totalPrice = 0;
+    for (let h = 0; h < hours; h++) {
+        const slotHour = startHour + h;
+        let rate;
+        if (isWeekend) {
+            rate = PRICING.WEEKEND;
+        } else if (slotHour >= PRICING.PEAK_START_HOUR) {
+            rate = PRICING.WEEKDAY_PEAK;
+        } else {
+            rate = PRICING.WEEKDAY_OFFPEAK;
+        }
+        totalPrice += rate * courts;
+    }
+    return totalPrice;
+}
 
         const PACKAGES = [
             { id: 'starter', name: 'Starter', hours: 5, price: 65 },
@@ -1631,7 +1659,11 @@
             const totalBookings = activeBookings.length;
             const totalHours = activeBookings.reduce((sum, b) => sum + (b.duration * b.courts), 0);
             const cashBookings = activeBookings.filter(b => b.payment_method !== 'credits');
-            const totalRevenue = cashBookings.reduce((sum, b) => sum + (b.duration * b.courts * PRICE_PER_HOUR), 0);
+            const totalRevenue = cashBookings.reduce((sum, b) => {
+    // Use stored amount if available, otherwise calculate
+    if (b.totalAmount) return sum + parseFloat(b.totalAmount);
+    return sum + calculateDynamicPrice(b.date, b.time, b.duration, b.courts);
+}, 0);
 
             document.getElementById('statTodayBookings').textContent = totalBookings;
             document.getElementById('statTodayHours').textContent = totalHours;
@@ -1655,14 +1687,20 @@
         }
 
         function updateNewBookingPrice() {
-            const duration = parseInt(document.getElementById('newBookingDuration').value);
-            const courts = parseInt(document.getElementById('newBookingCourts').value);
-            const total = duration * courts * PRICE_PER_HOUR;
-
-            document.getElementById('newBookingSummaryDuration').textContent = duration;
-            document.getElementById('newBookingSummaryCourts').textContent = courts;
-            document.getElementById('newBookingPrice').textContent = total;
-        }
+    const duration = parseInt(document.getElementById('newBookingDuration').value) || 1;
+    const courts = parseInt(document.getElementById('newBookingCourts').value) || 1;
+    const dateInput = document.getElementById('newBookingDate');
+    const timeSelect = document.getElementById('newBookingTime');
+    
+    let total;
+    if (dateInput && dateInput.value && timeSelect && timeSelect.value) {
+        total = calculateDynamicPrice(dateInput.value, timeSelect.value, duration, courts);
+    } else {
+        total = duration * courts * PRICING.WEEKDAY_PEAK; // Default to peak
+    }
+    
+    document.getElementById('newBookingPrice').textContent = total;
+}
 
         async function createNewBooking() {
             const name = document.getElementById('newBookingName').value.trim();
@@ -2171,6 +2209,8 @@
             if (localStorage.getItem('adminLoggedIn') === 'true') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('show');
+                document.getElementById('newBookingDate')?.addEventListener('change', updateNewBookingPrice);
+                document.getElementById('newBookingTime')?.addEventListener('change', updateNewBookingPrice);
                 initDashboard();
             }
         });
