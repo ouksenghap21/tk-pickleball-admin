@@ -1654,6 +1654,7 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
         let currentPin = '';
         let selectedPackage = null;
         let bookingToCancel = null;
+        let currentBookings = [];
 
         // ============================================
         // LOGIN FUNCTIONS
@@ -1780,6 +1781,7 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
         }
 
         function renderBookings(bookings) {
+        currentBookings = bookings;
     const container = document.getElementById('bookingsList');
 
     if (bookings.length === 0) {
@@ -1870,7 +1872,7 @@ function calculateDynamicPrice(dateStr, startTime, hours, courts) {
                 </div>
                 <div class="booking-actions">
                     ${actionButtons}
-                    <button class="btn btn-danger" onclick="showCancelBookingModal('${booking.booking_id}', '${booking.name}', '${booking.time}', ${booking.duration}, ${booking.courts}, '${booking.payment_method}', '${booking.telegram_id || ''}', ${booking.credits_used || 0}, ${booking.cash_due || 0})">Cancel</button>
+                   <button class="btn btn-danger" onclick="showCancelModal('${booking.booking_id}')">Cancel</button>
                 </div>
             </div>
         `;
@@ -2044,30 +2046,52 @@ async function updatePaymentStatus(bookingId, status) {
         // ============================================
         // CANCEL BOOKING FUNCTIONS
         // ============================================
-        function showCancelBookingModal(bookingId, name, time, duration, courts, paymentMethod, telegramId, creditsUsed, cashDue) {
-    bookingToCancel = { bookingId, name, time, duration, courts, paymentMethod, telegramId, creditsUsed, cashDue };
+       function showCancelModal(bookingId) {
+    // Find the booking from stored data
+    const booking = currentBookings.find(b => b.booking_id === bookingId);
+    
+    if (!booking) {
+        showToast('Booking not found', 'error');
+        return;
+    }
+    
+    const creditsUsed = parseFloat(booking.credits_used) || 0;
+    const cashDue = parseFloat(booking.cash_due) || 0;
+    const paymentMethod = booking.payment_method || 'cash';
+    
+    bookingToCancel = {
+        bookingId: booking.booking_id,
+        name: booking.name,
+        time: booking.time,
+        duration: booking.duration,
+        courts: booking.courts,
+        paymentMethod: paymentMethod,
+        telegramId: booking.telegram_id || '',
+        creditsUsed: creditsUsed,
+        cashDue: cashDue
+    };
 
-    const timeLabel = TIME_SLOTS.find(t => t.value === time)?.label || time;
+    const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
 
     // Payment display based on method
     let paymentDisplay;
     if (paymentMethod === 'credits') {
-        paymentDisplay = `🎫 Credits (${creditsUsed || duration * courts} hrs)`;
+        paymentDisplay = `🎫 Credits (${creditsUsed} hrs)`;
     } else if (paymentMethod === 'partial') {
-        paymentDisplay = `💳+💵 Partial (${creditsUsed} hrs + $${cashDue} cash)`;
+        paymentDisplay = `💳+💵 Partial (${creditsUsed} hrs credits + $${cashDue} cash)`;
     } else {
-        paymentDisplay = '💵 Cash';
+        paymentDisplay = `💵 Cash ($${booking.amount})`;
     }
 
     document.getElementById('cancelBookingDetails').innerHTML = `
-        <div class="summary-row"><span>Name</span><span>${name}</span></div>
+        <div class="summary-row"><span>Name</span><span>${booking.name}</span></div>
         <div class="summary-row"><span>Time</span><span>${timeLabel}</span></div>
-        <div class="summary-row"><span>Duration</span><span>${duration} hour(s)</span></div>
-        <div class="summary-row"><span>Courts</span><span>${courts}</span></div>
+        <div class="summary-row"><span>Duration</span><span>${booking.duration} hour(s)</span></div>
+        <div class="summary-row"><span>Courts</span><span>${booking.courts}</span></div>
         <div class="summary-row"><span>Payment</span><span>${paymentDisplay}</span></div>
     `;
 
-    // Show refund info for BOTH credits AND partial
+    // Show refund info for credits AND partial
     const refundInfo = document.getElementById('cancelRefundInfo');
     if ((paymentMethod === 'credits' || paymentMethod === 'partial') && creditsUsed > 0) {
         refundInfo.style.display = 'block';
