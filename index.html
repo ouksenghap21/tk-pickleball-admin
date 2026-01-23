@@ -2013,49 +2013,97 @@
         }
 
         function renderActivatedAccounts(accounts) {
-            const container = document.getElementById('customersList');
+    const container = document.getElementById('customersList');
 
-            if (accounts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👥</div>
-                        <p class="empty-state-text">No activated accounts yet</p>
-                    </div>
-                `;
-                return;
-            }
+    if (accounts.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <p class="empty-state-text">No activated accounts yet</p>
+            </div>
+        `;
+        return;
+    }
 
-            container.innerHTML = accounts.map(account => `
-                <div class="customer-list-item" onclick="showCustomerDetails('${account.telegramId}', '${account.name || 'Unknown'}', ${account.balance || 0}, ${account.totalPurchased || 0}, ${account.totalUsed || 0}, '${account.activatedDate || ''}')">
-                    <div class="customer-list-info">
-                        <div class="customer-list-name">${account.name || 'Unknown'}</div>
-                        <div class="customer-list-phone">📱 Telegram ID: ${account.telegramId}</div>
-                    </div>
-                    <div class="customer-list-balance">
-                        <div class="customer-list-balance-value">${account.balance || 0}</div>
-                        <div class="customer-list-balance-label">hours</div>
-                    </div>
+    container.innerHTML = accounts.map(account => {
+        const hasMerged = account.mergedCodes && account.mergedCodes.length > 0;
+        const mergedCount = hasMerged ? (account.mergedCodes.match(/CR/g) || []).length : 0;
+        const accountData = encodeURIComponent(JSON.stringify(account));
+        
+        return `
+        <div class="customer-list-item" onclick="showCustomerDetails('${accountData}')">
+            <div class="customer-list-info">
+                <div class="customer-list-name">${account.name || 'Unknown'}</div>
+                <div class="customer-list-phone">📞 ${account.phone || 'No phone'}</div>
+                ${mergedCount > 0 ? `<div style="font-size: 11px; color: #667eea; margin-top: 2px;">🔗 ${mergedCount} merged code(s)</div>` : ''}
+            </div>
+            <div class="customer-list-balance">
+                <div class="customer-list-balance-value">${account.balance || 0}</div>
+                <div class="customer-list-balance-label">hours</div>
+            </div>
+        </div>
+    `}).join('');
+}
+
+        function showCustomerDetails(accountDataEncoded) {
+    const account = JSON.parse(decodeURIComponent(accountDataEncoded));
+    
+    let mergedCodesHtml = '';
+    if (account.mergedCodes && account.mergedCodes.length > 0) {
+        const codes = account.mergedCodes.split(', ');
+        mergedCodesHtml = `
+            <div style="margin-top: 16px;">
+                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">🔗 Merged Codes</h4>
+                <div style="background: #f5f5f5; border-radius: 8px; padding: 12px;">
+                    ${codes.map(code => `<div style="font-size: 13px; padding: 4px 0; border-bottom: 1px solid #e0e0e0;">${code}</div>`).join('')}
                 </div>
-            `).join('');
-        }
+            </div>
+        `;
+    }
+    
+    document.getElementById('viewCustomerContent').innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="font-size: 24px; font-weight: 700;">${account.name}</div>
+            <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">📞 ${account.phone || 'No phone'}</div>
+            <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">📱 Telegram: ${account.telegramId}</div>
+            <div style="font-size: 36px; font-weight: 700; margin-top: 16px;">${account.balance} hrs</div>
+            <div style="font-size: 12px; opacity: 0.8;">Current Balance</div>
+        </div>
+        <div class="summary-box">
+            <div class="summary-row"><span>Total Purchased</span><span>${account.totalPurchased} hours</span></div>
+            <div class="summary-row"><span>Total Used</span><span>${account.totalUsed} hours</span></div>
+            <div class="summary-row"><span>Member Since</span><span>${account.createdDate || 'Unknown'}</span></div>
+            <div class="summary-row"><span>Last Activity</span><span>${account.lastUsedDate || 'Never'}</span></div>
+        </div>
+        ${mergedCodesHtml}
+    `;
+    showModal('viewCustomerModal');
+}
+```
 
-        function showCustomerDetails(telegramId, name, balance, totalPurchased, totalUsed, activatedDate) {
-            document.getElementById('viewCustomerContent').innerHTML = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-                    <div style="font-size: 24px; font-weight: 700;">${name}</div>
-                    <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">📱 Telegram ID: ${telegramId}</div>
-                    <div style="font-size: 32px; font-weight: 700; margin-top: 12px;">${balance} hrs</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Current Balance</div>
-                </div>
-                <div class="summary-box">
-                    <div class="summary-row"><span>Total Purchased</span><span>${totalPurchased} hours</span></div>
-                    <div class="summary-row"><span>Total Used</span><span>${totalUsed} hours</span></div>
-                    <div class="summary-row"><span>Activated</span><span>${activatedDate || 'Unknown'}</span></div>
-                </div>
-            `;
+---
 
-            showModal('viewCustomerModal');
-        }
+## New Customer View Will Show:
+```
+┌─────────────────────────────────────┐
+│  Hap                                │
+│  📞 77589999                        │
+│  📱 Telegram: 136586030             │
+│                                     │
+│  74 hrs                             │
+│  Current Balance                    │
+├─────────────────────────────────────┤
+│  Total Purchased    85 hours        │
+│  Total Used         11 hours        │
+│  Member Since       Jan 20, 2026    │
+│  Last Activity      Jan 22, 2026    │
+├─────────────────────────────────────┤
+│  🔗 Merged Codes                    │
+│  CR31172934 (5hrs)                  │
+│  CR31588923 (10hrs)                 │
+│  CR67619401 (20hrs)                 │
+│  ...                                │
+└─────────────────────────────────────┘
 
         // ============================================
         // STATS FUNCTIONS
