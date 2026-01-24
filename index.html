@@ -1240,10 +1240,10 @@
         }
 
         .quick-stat-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 16px;
             padding: 16px;
-            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
         }
 
         .quick-stat-icon {
@@ -1276,7 +1276,7 @@
         .quick-stat-value {
             font-size: 24px;
             font-weight: 800;
-            color: var(--gray-900);
+            color: var(--text-primary);
             margin-bottom: 2px;
         }
 
@@ -1311,13 +1311,13 @@
         }
 
         .package-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            border: 2px solid transparent;
+            border: 1px solid var(--glass-border);
             position: relative;
             overflow: hidden;
         }
@@ -1363,7 +1363,7 @@
 
         .package-hours-label {
             font-size: 12px;
-            color: var(--gray-500);
+            color: var(--text-muted);
             font-weight: 500;
             margin-bottom: 8px;
         }
@@ -1371,14 +1371,14 @@
         .package-name {
             font-size: 14px;
             font-weight: 700;
-            color: var(--gray-800);
+            color: var(--text-primary);
             margin-bottom: 4px;
         }
 
         .package-price {
             font-size: 18px;
             font-weight: 700;
-            color: var(--gray-900);
+            color: var(--primary);
         }
 
         .package-savings {
@@ -1390,11 +1390,11 @@
 
         /* Customer Cards */
         .customer-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
-            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
             gap: 16px;
@@ -1428,13 +1428,13 @@
         .customer-name {
             font-size: 15px;
             font-weight: 700;
-            color: var(--gray-900);
+            color: var(--text-primary);
             margin-bottom: 2px;
         }
 
         .customer-phone {
             font-size: 13px;
-            color: var(--gray-500);
+            color: var(--text-muted);
         }
 
         .customer-balance {
@@ -1821,8 +1821,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
