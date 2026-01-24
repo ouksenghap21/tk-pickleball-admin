@@ -720,6 +720,60 @@
             background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
         }
 
+        /* Past booking styles for timeline */
+        .timeline-booking.past {
+            opacity: 0.5;
+            filter: grayscale(40%);
+        }
+
+        /* Current time needle */
+        .timeline-needle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--danger);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .timeline-needle::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        .timeline-needle::after {
+            content: 'NOW';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--danger);
+            background: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        /* Timeline container needs relative positioning for needle */
+        .timeline-slots {
+            display: flex;
+            flex: 1;
+            position: relative;
+            height: 44px;
+            background: var(--gray-100);
+            border-radius: 8px;
+            overflow: visible;
+        }
+
         /* Booking Cards */
         .booking-card {
             background: white;
@@ -729,6 +783,7 @@
             box-shadow: var(--shadow);
             transition: all 0.2s;
             border-left: 4px solid transparent;
+            position: relative;
         }
 
         .booking-card:hover {
@@ -745,6 +800,29 @@
 
         .booking-card.credits {
             border-left-color: var(--primary);
+        }
+
+        /* Past booking card styles */
+        .booking-card.past-booking {
+            opacity: 0.6;
+            background: var(--gray-50);
+        }
+
+        .booking-card.past-booking .booking-time-badge {
+            background: var(--gray-500);
+        }
+
+        .booking-card.past-booking::after {
+            content: 'PAST';
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--gray-400);
+            background: var(--gray-200);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         .booking-card-header {
@@ -1660,7 +1738,7 @@
                 <button class="pin-btn" onclick="enterPin('9')">9</button>
                 <button class="pin-btn clear" onclick="clearPin()">✕</button>
                 <button class="pin-btn" onclick="enterPin('0')">0</button>
-                <button class="pin-btn submit" onclick="submitPin()">✓</button>
+                <button class="pin-btn submit" onclick="submitPin()">✔</button>
             </div>
             
             <p id="loginError" class="login-error">Incorrect PIN. Please try again.</p>
@@ -1846,7 +1924,7 @@
             <div class="stats-card">
                 <div class="stats-card-title">💰 Revenue Breakdown (30 Days)</div>
                 <div class="revenue-row">
-                    <span class="revenue-label">✓ Confirmed Cash</span>
+                    <span class="revenue-label">✔ Confirmed Cash</span>
                     <span class="revenue-value success">$<span id="statCashRevenue">0</span></span>
                 </div>
                 <div class="revenue-row">
@@ -1866,7 +1944,7 @@
             <div class="stats-card">
                 <div class="stats-card-title">📋 Payment Status</div>
                 <div class="summary-box" style="margin: 0;">
-                    <div class="summary-row"><span>✓ Paid</span><span style="color: var(--success);"><span id="statPaidBookings">0</span></span></div>
+                    <div class="summary-row"><span>✔ Paid</span><span style="color: var(--success);"><span id="statPaidBookings">0</span></span></div>
                     <div class="summary-row"><span>⏳ Pending</span><span style="color: var(--warning);"><span id="statPendingBookings">0</span></span></div>
                     <div class="summary-row"><span>✗ Unpaid</span><span style="color: var(--danger);"><span id="statUnpaidBookings">0</span></span></div>
                     <div class="summary-row"><span>👻 No-Show</span><span style="color: var(--gray-500);"><span id="statNoShowBookings">0</span></span></div>
@@ -1933,7 +2011,7 @@
                     <div style="font-size: 12px; margin-top: 4px;" id="creditCustomerName"></div>
                 </div>
                 <div id="noCreditInfo" style="display: none; margin-top: 8px; padding: 10px; background: var(--gray-100); border-radius: 10px; color: var(--gray-600); font-size: 13px;">
-                    ℹ️ No credit account found for this phone
+                    â„¹ï¸ No credit account found for this phone
                 </div>
             </div>
 
@@ -2020,7 +2098,7 @@
 
             <!-- Insufficient Credits Warning -->
             <div id="insufficientCreditsWarning" style="display: none; padding: 12px 16px; background: var(--warning-light); border-radius: 10px; margin-bottom: 16px; color: var(--warning); font-size: 13px;">
-                ⚠️ Not enough credits. Need <span id="hoursShort">0</span> more hours. Booking will be <strong>Partial Payment</strong> or select Cash.
+                âš ï¸ Not enough credits. Need <span id="hoursShort">0</span> more hours. Booking will be <strong>Partial Payment</strong> or select Cash.
             </div>
 
             <div class="modal-buttons">
@@ -2057,7 +2135,7 @@
     <!-- ACTIVATION CODE MODAL -->
     <div id="activationCodeModal" class="modal code-modal">
         <div class="modal-content">
-            <div class="code-success-icon">✓</div>
+            <div class="code-success-icon">✔</div>
             <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 4px;">Code Generated!</h2>
             <p style="color: var(--gray-500); font-size: 14px;">Give this code to the customer</p>
             
@@ -2080,7 +2158,7 @@
             
             <div class="code-instructions">
                 📱 Customer enters code in Telegram bot:<br>
-                <strong>Menu → Activate Credits → Enter Code</strong>
+                <strong>Menu â†’ Activate Credits â†’ Enter Code</strong>
             </div>
             
             <div class="modal-buttons">
@@ -2385,6 +2463,12 @@
 
             bookings.sort((a, b) => a.time.localeCompare(b.time));
 
+            // Get current time info for past booking detection
+            const now = new Date();
+            const isToday = selectedDate.toDateString() === now.toDateString();
+            const currentHour = now.getHours();
+            const isPastDate = selectedDate < new Date(now.toDateString());
+
             container.innerHTML = bookings.map(booking => {
                 const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
                 const paymentMethod = booking.payment_method || 'cash';
@@ -2407,21 +2491,21 @@
                 let actionBtns = '';
 
                 if (paymentMethod === 'credits') {
-                    statusBadge = '<span class="status-badge paid">✓ Paid</span>';
+                    statusBadge = '<span class="status-badge paid">✔ Paid</span>';
                 } else {
                     if (paymentStatus === 'paid') {
-                        statusBadge = '<span class="status-badge paid">✓ Paid</span>';
+                        statusBadge = '<span class="status-badge paid">✔ Paid</span>';
                         actionBtns = `<button class="action-btn secondary" onclick="updatePaymentStatus('${booking.booking_id}', 'pending')">↩ Undo</button>`;
                     } else if (paymentStatus === 'unpaid') {
                         statusBadge = '<span class="status-badge unpaid">✗ Unpaid</span>';
-                        actionBtns = `<button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✓ Paid</button>`;
+                        actionBtns = `<button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✔ Paid</button>`;
                     } else if (paymentStatus === 'no-show') {
                         statusBadge = '<span class="status-badge noshow">👻 No-Show</span>';
-                        actionBtns = `<button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✓ Paid</button>`;
+                        actionBtns = `<button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✔ Paid</button>`;
                     } else {
                         statusBadge = '<span class="status-badge pending">⏳ Pending</span>';
                         actionBtns = `
-                            <button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✓ Paid</button>
+                            <button class="action-btn primary" onclick="updatePaymentStatus('${booking.booking_id}', 'paid')">✔ Paid</button>
                             <select class="form-input" style="padding: 10px; width: auto;" onchange="updatePaymentStatus('${booking.booking_id}', this.value); this.value='';">
                                 <option value="">•••</option>
                                 <option value="unpaid">✗ Unpaid</option>
@@ -2431,10 +2515,18 @@
                     }
                 }
 
+                
+                // Check if booking is in the past
+                const startHour = parseInt(booking.time.split(':')[0]);
+                const duration = parseInt(booking.duration);
+                const bookingEndHour = startHour + duration;
+                const isPastBooking = isPastDate || (isToday && bookingEndHour <= currentHour);
+
                 const cardClass = paymentMethod === 'credits' ? 'credits' : (paymentStatus === 'paid' ? 'paid' : 'pending');
+                const pastClass = isPastBooking ? ' past-booking' : '';
 
                 return `
-                    <div class="booking-card ${cardClass}">
+                    <div class="booking-card ${cardClass}${pastClass}">
                         <div class="booking-card-header">
                             <div class="booking-time-badge">${timeLabel}</div>
                             <div class="booking-status-badges">
@@ -2463,8 +2555,17 @@
 
         function renderTimeline() {
             const container = document.getElementById('courtTimeline');
-            const courts = [1, 2, 3, 4];
+            const courts = [1, 2, 3, 4, 5, 6, 7, 8]; // All 8 courts
             const hours = TIME_SLOTS.filter(t => t.hour >= 8 && t.hour <= 21);
+
+            // Calculate current time position for needle (only show for today)
+            const now = new Date();
+            const isToday = selectedDate.toDateString() === now.toDateString();
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const needlePosition = isToday && currentHour >= 8 && currentHour < 22 
+                ? ((currentHour - 8) * 60 + currentMinutes) 
+                : null;
 
             let headerHtml = `
                 <div class="timeline-header">
@@ -2487,9 +2588,21 @@
                     const left = (startHour - 8) * 60;
                     const width = duration * 60 - 4;
                     const paymentClass = b.payment_method === 'credits' ? 'credits' : (b.payment_method === 'partial' ? 'partial' : 'cash');
+                    
+                    // Check if booking is in the past
+                    const bookingEndHour = startHour + duration;
+                    const isPast = isToday 
+                        ? (bookingEndHour <= currentHour || (bookingEndHour === currentHour + 1 && currentMinutes > 0 && startHour + duration <= currentHour + (currentMinutes / 60)))
+                        : selectedDate < new Date(now.toDateString());
+                    const pastClass = isPast ? ' past' : '';
 
-                    return `<div class="timeline-booking ${paymentClass}" style="left: ${left}px; width: ${width}px;" onclick="showCancelModal('${b.booking_id}')">${b.name}</div>`;
+                    return `<div class="timeline-booking ${paymentClass}${pastClass}" style="left: ${left}px; width: ${width}px;" onclick="showCancelModal('${b.booking_id}')">${b.name}</div>`;
                 }).join('');
+
+                // Add current time needle for each row (only for today and within operating hours)
+                const needleHtml = needlePosition !== null 
+                    ? `<div class="timeline-needle" style="left: ${needlePosition}px;"></div>` 
+                    : '';
 
                 return `
                     <div class="timeline-row">
@@ -2497,6 +2610,7 @@
                         <div class="timeline-slots">
                             ${hours.map(() => '<div class="timeline-slot"></div>').join('')}
                             ${bookingsHtml}
+                            ${needleHtml}
                         </div>
                     </div>
                 `;
@@ -2939,7 +3053,7 @@
         function copyActivationCode() {
             const code = document.getElementById('activationCodeDisplay').textContent;
             navigator.clipboard.writeText(code).then(() => {
-                document.getElementById('copyCodeBtn').innerHTML = '✓ Copied!';
+                document.getElementById('copyCodeBtn').innerHTML = '✔ Copied!';
                 showToast('Code copied!', 'success');
             }).catch(() => {
                 showToast('Copy failed', 'error');
@@ -3126,7 +3240,7 @@
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
-            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+            const icon = type === 'success' ? '✔' : type === 'error' ? '✕' : 'â„¹';
             toast.innerHTML = `<span class="toast-icon">${icon}</span>${message}`;
             toast.className = `toast ${type} show`;
             setTimeout(() => toast.classList.remove('show'), 3000);
