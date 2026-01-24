@@ -2132,6 +2132,27 @@
         </div>
     </div>
 
+    <!-- BOOKING INFO MODAL (View Only - For Past Bookings) -->
+    <div id="bookingInfoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Booking Details</h2>
+                <button class="modal-close" onclick="hideModal('bookingInfoModal')">✕</button>
+            </div>
+
+            <div style="background: var(--gray-100); padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; color: var(--gray-600); font-size: 13px; font-weight: 500;">
+                ⏳ This booking has already passed
+            </div>
+
+            <div class="summary-box" id="bookingInfoDetails"></div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary btn-block" onclick="hideModal('bookingInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ACTIVATION CODE MODAL -->
     <div id="activationCodeModal" class="modal code-modal">
         <div class="modal-content">
@@ -2158,7 +2179,7 @@
             
             <div class="code-instructions">
                 📱 Customer enters code in Telegram bot:<br>
-                <strong>Menu â†’ Activate Credits â†’ Enter Code</strong>
+                <strong>Menu → Activate Credits → Enter Code</strong>
             </div>
             
             <div class="modal-buttons">
@@ -2525,6 +2546,9 @@
                 const cardClass = paymentMethod === 'credits' ? 'credits' : (paymentStatus === 'paid' ? 'paid' : 'pending');
                 const pastClass = isPastBooking ? ' past-booking' : '';
 
+                // Don't show cancel button for past bookings
+                const cancelBtn = isPastBooking ? '' : `<button class="action-btn danger" onclick="showCancelModal('${booking.booking_id}')">✕</button>`;
+
                 return `
                     <div class="booking-card ${cardClass}${pastClass}">
                         <div class="booking-card-header">
@@ -2545,7 +2569,7 @@
                             </div>
                             <div class="booking-card-actions">
                                 ${actionBtns}
-                                <button class="action-btn danger" onclick="showCancelModal('${booking.booking_id}')">✕</button>
+                                ${cancelBtn}
                             </div>
                         </div>
                     </div>
@@ -2596,7 +2620,12 @@
                         : selectedDate < new Date(now.toDateString());
                     const pastClass = isPast ? ' past' : '';
 
-                    return `<div class="timeline-booking ${paymentClass}${pastClass}" style="left: ${left}px; width: ${width}px;" onclick="showCancelModal('${b.booking_id}')">${b.name}</div>`;
+                    // Don't allow clicking on past bookings - show info only modal instead
+                    const clickHandler = isPast 
+                        ? `onclick="showBookingInfoModal('${b.booking_id}')"` 
+                        : `onclick="showCancelModal('${b.booking_id}')"`;
+
+                    return `<div class="timeline-booking ${paymentClass}${pastClass}" style="left: ${left}px; width: ${width}px;" ${clickHandler}>${b.name}</div>`;
                 }).join('');
 
                 // Add current time needle for each row (only for today and within operating hours)
@@ -2952,6 +2981,37 @@
             showModal('cancelBookingModal');
         }
 
+        // Show booking info (view only) for past bookings
+        function showBookingInfoModal(bookingId) {
+            const booking = currentBookings.find(b => b.booking_id === bookingId);
+            if (!booking) return showToast('Booking not found', 'error');
+
+            const creditsUsed = parseFloat(booking.credits_used) || 0;
+            const cashDue = parseFloat(booking.cash_due) || 0;
+            const paymentMethod = booking.payment_method || 'cash';
+            const paymentStatus = booking.payment_status || 'pending';
+            const timeLabel = TIME_SLOTS.find(t => t.value === booking.time)?.label || booking.time;
+
+            let paymentDisplay = paymentMethod === 'credits' ? `🎫 Credits (${creditsUsed} hrs)` :
+                                 paymentMethod === 'partial' ? `💳+💵 ${creditsUsed} hrs + $${cashDue}` :
+                                 `💵 Cash ($${booking.amount})`;
+
+            let statusDisplay = paymentStatus === 'paid' ? '✔ Paid' :
+                               paymentStatus === 'unpaid' ? '✗ Unpaid' :
+                               paymentStatus === 'no-show' ? '👻 No-Show' : '⏳ Pending';
+
+            document.getElementById('bookingInfoDetails').innerHTML = `
+                <div class="summary-row"><span>Customer</span><span>${booking.name}</span></div>
+                <div class="summary-row"><span>Phone</span><span>${booking.phone}</span></div>
+                <div class="summary-row"><span>Time</span><span>${timeLabel}</span></div>
+                <div class="summary-row"><span>Duration</span><span>${booking.duration} hr(s) × ${booking.courts} court(s)</span></div>
+                <div class="summary-row"><span>Payment</span><span>${paymentDisplay}</span></div>
+                <div class="summary-row"><span>Status</span><span>${statusDisplay}</span></div>
+            `;
+
+            showModal('bookingInfoModal');
+        }
+
         async function confirmCancelBooking() {
             if (!bookingToCancel) return;
             showLoading(true);
@@ -3111,9 +3171,12 @@
                 if (data.success) {
                     showToast('Code deleted', 'success');
                     loadPendingCodes();
+                } else {
+                    showToast(data.error || 'Failed to delete code', 'error');
                 }
             } catch (error) {
-                showToast('Error', 'error');
+                console.error('Delete code error:', error);
+                showToast('Connection error - check backend', 'error');
             }
             showLoading(false);
         }
