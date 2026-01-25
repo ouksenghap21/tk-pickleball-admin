@@ -3611,12 +3611,18 @@
         function hideModal(id) { document.getElementById(id).classList.remove('show'); }
         function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
 
+        let toastTimer;
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
+            if (toastTimer) clearTimeout(toastTimer);
+
             const icon = type === 'success' ? '✔' : type === 'error' ? '✕' : 'ℹ';
             toast.innerHTML = `<span class="toast-icon">${icon}</span>${message}`;
             toast.className = `toast ${type} show`;
-            setTimeout(() => toast.classList.remove('show'), 3000);
+
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         // ============================================
@@ -3804,13 +3810,26 @@
                         const players = slot.players || [];
                         const duration = parseFloat(slot.duration || 1);
 
+                        // Status Logic
+                        let statusBadge = slot.status;
+                        let statusClass = "status-confirmed";
+                        if (slot.count < 2 && slot.status === "OPEN") {
+                            statusBadge = "PENDING (Need " + (2 - slot.count) + " more)";
+                            statusClass = "status-pending"; // You might need to add CSS for this, or use status-cancelled style
+                        } else if (slot.status === "OPEN") {
+                            statusBadge = "CONFIRMED";
+                        }
+
                         // Expandable players list
                         const playersHtml = players.map(p => `
-                             <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #333; font-size:13px;">
-                                 <span>${p.name} <span style="color:var(--text-muted)">(${p.phone || 'No Phone'})</span></span>
-                                 <span style="color:var(--emerald)">${p.paymentStatus || 'Pending'}</span>
-                             </div>
-                         `).join('');
+                              <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #333; font-size:13px;">
+                                  <span>${p.name} <span style="color:var(--text-muted)">(${p.phone || 'No Phone'})</span></span>
+                                  <div style="display:flex; align-items:center; gap:8px;">
+                                      <span style="color:var(--emerald)">${p.paymentStatus || 'Joined'}</span>
+                                      <button onclick="removePlayerFromSlot('${slot.id}', '${p.id}')" style="background:none; border:none; cursor:pointer; color:#EF4444;">✕</button>
+                                  </div>
+                              </div>
+                          `).join('');
 
                         return `
                          <div class="booking-card" style="border-left: 4px solid var(--accent)">
@@ -3957,6 +3976,28 @@
                     refreshOpenPlaySlots();
                 } else {
                     showToast(data.error || "Error cancelling slot", "error");
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Network error", "error");
+            }
+        }
+
+        async function removePlayerFromSlot(slotId, playerId) {
+            if (!confirm("Remove this player from the slot?")) return;
+
+            showLoading(true);
+            try {
+                const url = `${BACKEND_URL}?action=removePlayerFromOpenPlay&slot_id=${encodeURIComponent(slotId)}&player_id=${encodeURIComponent(playerId)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                showLoading(false);
+                if (data.success) {
+                    showToast("Player removed", "success");
+                    refreshOpenPlaySlots();
+                } else {
+                    showToast(data.error || "Error removing player", "error");
                 }
             } catch (e) {
                 showLoading(false);
