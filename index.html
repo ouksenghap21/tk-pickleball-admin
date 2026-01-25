@@ -3823,11 +3823,14 @@
                                  <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${slot.level} • ${slot.count}/${slot.max} Players</div>
                              </div>
                              
-                             <div style="margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
+                            <div style="margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
                                  <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Players</div>
                                  ${players.length ? playersHtml : '<div style="font-size:12px; font-style:italic; color:var(--text-muted)">No players yet</div>'}
                              </div>
-                             <button class="action-btn secondary" style="margin-top:10px; width:100%;" onclick="showAddPlayerModal('${slot.id}')">➕ Add Player</button>
+                             <div style="display:flex; gap:8px; margin-top:10px;">
+                                 <button class="action-btn secondary" style="flex:1;" onclick="showAddPlayerModal('${slot.id}')">➕ Add Player</button>
+                                 <button class="action-btn" style="flex:1; background: linear-gradient(135deg, #EF4444, #DC2626);" onclick="cancelOpenPlaySlot('${slot.id}')">❌ Cancel</button>
+                             </div>
                          </div>
                          `;
                     }).join('');
@@ -3938,6 +3941,44 @@
                 showToast("Network error", "error");
             }
         }
+
+        async function cancelOpenPlaySlot(slotId) {
+            if (!confirm("Are you sure you want to cancel this Open Play slot? All players will be notified.")) return;
+
+            showLoading(true);
+            try {
+                const url = `${BACKEND_URL}?action=cancelOpenPlaySlot&slot_id=${encodeURIComponent(slotId)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                showLoading(false);
+                if (data.success) {
+                    showToast("Slot cancelled", "success");
+                    refreshOpenPlaySlots();
+                } else {
+                    showToast(data.error || "Error cancelling slot", "error");
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Network error", "error");
+            }
+        }
+
+        // Auto-refresh Open Play slots every 60 seconds
+        let openPlayPollingInterval = null;
+        function startOpenPlayPolling() {
+            if (openPlayPollingInterval) clearInterval(openPlayPollingInterval);
+            openPlayPollingInterval = setInterval(() => {
+                const currentTab = document.querySelector('.nav-item.active');
+                if (currentTab && currentTab.dataset.tab === 'openplay') {
+                    console.log("Auto-refreshing Open Play slots...");
+                    refreshOpenPlaySlots();
+                }
+            }, 60000); // 60 seconds
+        }
+
+        // Start polling when page loads
+        startOpenPlayPolling();
     </script>
 
     <!-- Add Player Modal -->
