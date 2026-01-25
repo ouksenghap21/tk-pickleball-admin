@@ -1974,6 +1974,32 @@
             height: 24px;
             border-width: 3px;
         }
+
+        .segment-control {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .segment-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .segment-item.active {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -2238,16 +2264,35 @@
 
         <!-- OPEN PLAY TAB -->
         <div id="tab-openplay" class="content-section">
-            <div class="header-actions" style="margin-bottom: 20px; justify-content: space-between; display: flex;">
+            <div class="header-actions"
+                style="margin-bottom: 20px; justify-content: space-between; display: flex; align-items:center;">
                 <h2>Manage Open Play</h2>
                 <button class="header-btn" style="width:auto; padding:0 12px; font-size:14px;"
                     onclick="showCreateOpenPlayModal()">+ New Slot</button>
             </div>
 
-            <div class="customer-card">
-                <div style="flex:1">
-                    <div class="package-name">Feature Coming Soon</div>
-                    <div class="package-hours-label">List of active slots will appear here.</div>
+            <!-- Sub-tabs -->
+            <div class="segment-control" style="margin-bottom:20px;">
+                <div class="segment-item active" id="seg-op-slots" onclick="switchOpenPlaySubTab('slots')">Active Slots
+                </div>
+                <div class="segment-item" id="seg-op-profiles" onclick="switchOpenPlaySubTab('profiles')">Profiles</div>
+            </div>
+
+            <!-- Slots View -->
+            <div id="view-op-slots">
+                <div id="adminOpenPlayList" class="bookings-list">
+                    <div class="empty-state">Loading slots...</div>
+                </div>
+            </div>
+
+            <!-- Profiles View -->
+            <div id="view-op-profiles" style="display:none;">
+                <div class="search-bar" style="margin-bottom:15px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search profiles..." onkeyup="filterProfiles(this.value)">
+                </div>
+                <div id="adminProfileList" class="bookings-list">
+                    <div class="empty-state">Loading profiles...</div>
                 </div>
             </div>
         </div>
@@ -2618,6 +2663,7 @@
             if (tabId === 'credits') loadPendingCodes(true);
             if (tabId === 'customers') loadActivatedAccounts(true);
             if (tabId === 'stats') loadStats(true);
+            if (tabId === 'openplay') refreshOpenPlaySlots();
         }
 
         // ============================================
@@ -3699,6 +3745,122 @@
                 btn.textContent = originalText;
                 showToast("Error", "error");
             }
+        }
+        // ============================================
+        // OPEN PLAY LOGIC
+        // ============================================
+        let currentOpSubTab = 'slots';
+        let allProfiles = [];
+
+        function switchOpenPlaySubTab(subTab) {
+            currentOpSubTab = subTab;
+            document.getElementById('seg-op-slots').classList.toggle('active', subTab === 'slots');
+            document.getElementById('seg-op-profiles').classList.toggle('active', subTab === 'profiles');
+
+            document.getElementById('view-op-slots').style.display = subTab === 'slots' ? 'block' : 'none';
+            document.getElementById('view-op-profiles').style.display = subTab === 'profiles' ? 'block' : 'none';
+
+            if (subTab === 'slots') refreshOpenPlaySlots();
+            if (subTab === 'profiles') refreshOpenPlayProfiles();
+        }
+
+        async function refreshOpenPlaySlots() {
+            const container = document.getElementById('adminOpenPlayList');
+            container.innerHTML = '<div class="empty-state">Loading slots...</div>';
+
+            try {
+                const res = await fetch(`${BACKEND_URL}?action=getOpenPlaySlots`);
+                const data = await res.json();
+
+                if (data.success && data.slots.length > 0) {
+                    container.innerHTML = data.slots.map(slot => {
+                        const players = slot.players || [];
+                        const duration = parseFloat(slot.duration || 1);
+
+                        // Expandable players list
+                        const playersHtml = players.map(p => `
+                             <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #333; font-size:13px;">
+                                 <span>${p.name} <span style="color:var(--text-muted)">(${p.phone || 'No Phone'})</span></span>
+                                 <span style="color:var(--emerald)">${p.paymentStatus || 'Pending'}</span>
+                             </div>
+                         `).join('');
+
+                        return `
+                         <div class="booking-card" style="border-left: 4px solid var(--accent)">
+                             <div class="booking-header">
+                                 <div class="booking-time">${slot.time} (${duration}h)</div>
+                                 <div class="booking-status status-confirmed">${slot.status}</div>
+                             </div>
+                             <div class="booking-details">
+                                 <div>${slot.date} • Court ${slot.court}</div>
+                                 <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${slot.level} • ${slot.count}/${slot.max} Players</div>
+                             </div>
+                             
+                             <div style="margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
+                                 <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Players</div>
+                                 ${players.length ? playersHtml : '<div style="font-size:12px; font-style:italic; color:var(--text-muted)">No players yet</div>'}
+                             </div>
+                         </div>
+                         `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state">No active Open Play slots found.</div>';
+                }
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="empty-state">Error loading slots.</div>';
+            }
+        }
+
+        async function refreshOpenPlayProfiles() {
+            const container = document.getElementById('adminProfileList');
+            container.innerHTML = '<div class="empty-state">Loading profiles...</div>';
+
+            try {
+                const res = await fetch(`${BACKEND_URL}?action=getAllProfiles`);
+                const data = await res.json();
+
+                if (data.success) {
+                    allProfiles = data.profiles;
+                    renderProfiles(allProfiles);
+                } else {
+                    container.innerHTML = '<div class="empty-state">No profiles found.</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state">Error loading profiles.</div>';
+            }
+        }
+
+        function renderProfiles(profiles) {
+            const container = document.getElementById('adminProfileList');
+            if (profiles.length === 0) {
+                container.innerHTML = '<div class="empty-state">No matching profiles.</div>';
+                return;
+            }
+            container.innerHTML = profiles.map(p => `
+                 <div class="booking-card">
+                     <div class="booking-header">
+                         <div class="booking-time">${p.name}</div>
+                         <div class="booking-status status-confirmed">${p.skillLevel}</div>
+                     </div>
+                     <div class="booking-details">
+                         <div>${p.phone || 'No Phone'}</div>
+                         <div style="font-size:12px; color:var(--text-muted);">
+                            Looking for game: <span style="color:${p.lookingForGame === 'TRUE' ? 'var(--emerald)' : 'var(--text-muted)'}">${p.lookingForGame}</span>
+                         </div>
+                     </div>
+                 </div>
+            `).join('');
+        }
+
+        function filterProfiles(query) {
+            if (!query) return renderProfiles(allProfiles);
+            const lower = query.toLowerCase();
+            const filtered = allProfiles.filter(p =>
+                (p.name && p.name.toLowerCase().includes(lower)) ||
+                (p.phone && p.phone.includes(lower))
+            );
+            renderProfiles(filtered);
         }
     </script>
 </body>
