@@ -2231,6 +2231,10 @@
                     <span class="revenue-label">🎫 Credit Packages</span>
                     <span class="revenue-value success">$<span id="statPackageRevenue">0</span></span>
                 </div>
+                <div class="revenue-row">
+                    <span class="revenue-label">🎾 Open Play Walk-ins</span>
+                    <span class="revenue-value success">$<span id="statWalkInRevenue">0</span></span>
+                </div>
                 <div class="revenue-row"
                     style="background: var(--gray-100); margin: 12px -20px -20px; padding: 16px 20px; border-radius: 0 0 16px 16px;">
                     <span class="revenue-label" style="font-weight: 600;">📊 Total Confirmed</span>
@@ -2833,7 +2837,11 @@
 
                 // Payment badge
                 let paymentBadge = '';
-                if (paymentMethod === 'credits') {
+                const isOpenPlay = booking.name && booking.name.toUpperCase().includes('OPEN PLAY');
+
+                if (isOpenPlay) {
+                    paymentBadge = '<span class="status-badge" style="background: linear-gradient(135deg, #10B981, #34D399); color: white;">🎾 OPEN PLAY</span>';
+                } else if (paymentMethod === 'credits') {
                     paymentBadge = '<span class="status-badge credits">🎫 Credits</span>';
                 } else if (paymentMethod === 'partial') {
                     paymentBadge = `<span class="status-badge partial">💳+💵 $${cashDue}</span>`;
@@ -3565,7 +3573,8 @@
                     document.getElementById('statCashRevenue').textContent = data.cashRevenue || 0;
                     document.getElementById('statPendingRevenue').textContent = data.pendingRevenue || 0;
                     document.getElementById('statPackageRevenue').textContent = data.packageRevenue || 0;
-                    document.getElementById('statCombinedRevenue').textContent = (data.cashRevenue || 0) + (data.packageRevenue || 0);
+                    document.getElementById('statWalkInRevenue').textContent = data.walkInRevenue || 0;
+                    document.getElementById('statCombinedRevenue').textContent = (data.cashRevenue || 0) + (data.packageRevenue || 0) + (data.walkInRevenue || 0);
 
                     document.getElementById('statPaidBookings').textContent = data.paidBookingsCount || 0;
                     document.getElementById('statPendingBookings').textContent = data.pendingBookingsCount || 0;
@@ -3818,6 +3827,7 @@
                                  <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Players</div>
                                  ${players.length ? playersHtml : '<div style="font-size:12px; font-style:italic; color:var(--text-muted)">No players yet</div>'}
                              </div>
+                             <button class="action-btn secondary" style="margin-top:10px; width:100%;" onclick="showAddPlayerModal('${slot.id}')">➕ Add Player</button>
                          </div>
                          `;
                     }).join('');
@@ -3880,7 +3890,70 @@
             );
             renderProfiles(filtered);
         }
+
+        // ============================================
+        // ADD PLAYER TO OPEN PLAY
+        // ============================================
+        let currentSlotId = null;
+
+        function showAddPlayerModal(slotId) {
+            currentSlotId = slotId;
+            document.getElementById('addPlayerName').value = '';
+            document.getElementById('addPlayerPhone').value = '';
+            document.getElementById('addPlayerModal').style.display = 'flex';
+        }
+
+        function hideAddPlayerModal() {
+            document.getElementById('addPlayerModal').style.display = 'none';
+            currentSlotId = null;
+        }
+
+        async function addPlayerToSlot() {
+            const name = document.getElementById('addPlayerName').value.trim();
+            const phone = document.getElementById('addPlayerPhone').value.trim();
+
+            if (!name) return showToast("Name is required", "error");
+            if (!currentSlotId) return showToast("No slot selected", "error");
+
+            showLoading(true);
+            try {
+                const url = `${BACKEND_URL}?action=addPlayerToOpenPlay&slot_id=${encodeURIComponent(currentSlotId)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                showLoading(false);
+                if (data.success) {
+                    showToast("Player added!", "success");
+                    hideAddPlayerModal();
+                    refreshOpenPlaySlots();
+                } else {
+                    showToast(data.error || "Error adding player", "error");
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Network error", "error");
+            }
+        }
     </script>
+
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h2>Add Player</h2>
+                <button class="close-btn" onclick="hideAddPlayerModal()">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Player Name *</label>
+                <input type="text" id="addPlayerName" class="form-input" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+                <label>Phone (Optional)</label>
+                <input type="text" id="addPlayerPhone" class="form-input" placeholder="Enter phone">
+            </div>
+            <button class="action-btn btn-primary" style="width:100%;" onclick="addPlayerToSlot()">Add Player</button>
+        </div>
+    </div>
 </body>
 
 </html>
