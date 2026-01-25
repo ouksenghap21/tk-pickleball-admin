@@ -2023,7 +2023,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="header-btn" onclick="loadBookings()">🔄</button>
+                <button class="header-btn" onclick="refreshAllData(true)">🔄</button>
                 <button class="header-btn" onclick="logout()">🚪</button>
             </div>
         </div>
@@ -2710,9 +2710,9 @@
         // ============================================
         // BOOKINGS
         // ============================================
-        async function loadBookings() {
+        async function loadBookings(silent = false) {
             const dateStr = formatDateForAPI(selectedDate);
-            showLoading(true);
+            if (!silent) showLoading(true);
 
             try {
                 const response = await fetch(`${BACKEND_URL}?action=getBookings&date=${dateStr}`);
@@ -2730,7 +2730,7 @@
                 showToast('Connection error', 'error');
             }
 
-            showLoading(false);
+            if (!silent) showLoading(false);
         }
 
         function renderBookings(bookings) {
@@ -3346,7 +3346,7 @@
             });
         }
 
-        async function loadPendingCodes() {
+        async function loadPendingCodes(silent = false) {
             try {
                 const response = await fetch(`${BACKEND_URL}?action=getPendingCodes`);
                 const data = await response.json();
@@ -3407,8 +3407,8 @@
         // ============================================
         // CUSTOMERS
         // ============================================
-        async function loadActivatedAccounts() {
-            showLoading(true);
+        async function loadActivatedAccounts(silent = false) {
+            if (!silent) showLoading(true);
             try {
                 const response = await fetch(`${BACKEND_URL}?action=getActivatedAccounts`);
                 const data = await response.json();
@@ -3421,7 +3421,7 @@
             } catch (error) {
                 console.error(error);
             }
-            showLoading(false);
+            if (!silent) showLoading(false);
         }
 
         function renderCustomers(accounts) {
@@ -3473,8 +3473,8 @@
         // ============================================
         // STATS
         // ============================================
-        async function loadStats() {
-            showLoading(true);
+        async function loadStats(silent = false) {
+            if (!silent) showLoading(true);
             try {
                 const response = await fetch(`${BACKEND_URL}?action=getDashboardStats`);
                 const data = await response.json();
@@ -3500,7 +3500,7 @@
             } catch (error) {
                 console.error(error);
             }
-            showLoading(false);
+            if (!silent) showLoading(false);
         }
 
         function renderTopCustomers(customers) {
@@ -3540,6 +3540,21 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('show');
                 initDashboard();
+            }
+
+            // Auto Refresh (Every 30 seconds)
+            setInterval(() => refreshAllData(true), 30000);
+
+            async function refreshAllData(silent = false) {
+                // Refresh currently active tab data + general stats
+                const p1 = loadBookings(silent);
+                const p2 = loadStats(silent);
+
+                // Also refresh others in background
+                loadPendingCodes(true);
+                loadActivatedAccounts(true);
+
+                await Promise.all([p1, p2]);
             }
 
             // Event listeners for price updates
