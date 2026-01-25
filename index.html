@@ -3646,12 +3646,20 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>New Open Play Slot</h2>
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Create a single slot or define
+                    a range to repeat.</div>
                 <button class="close-btn"
                     onclick="document.getElementById('createOpenPlayModal').style.display='none'">✕</button>
             </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" id="opDate" class="form-input">
+            <div class="form-row" style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Start Date</label>
+                    <input type="date" id="opDate" class="form-input">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>End Date (Optional)</label>
+                    <input type="date" id="opEndDate" class="form-input">
+                </div>
             </div>
             <div class="form-group">
                 <label>Time</label>
@@ -3731,13 +3739,23 @@
             btn.textContent = "Creating...";
 
             const url = `${BACKEND_URL}?action=createOpenPlaySlot&date=${date}&time=${time}&court=${court}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
+
+            // Check for End Date (Bulk Create)
+            const endDate = document.getElementById('opEndDate').value;
+            let finalUrl = url;
+
+            if (endDate && endDate !== date) {
+                finalUrl = `${BACKEND_URL}?action=createOpenPlaySlotsBulk&startDate=${date}&endDate=${endDate}&time=${time}&court=${court}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
+            }
+
             try {
-                const r = await fetch(url).then(res => res.json());
+                const r = await fetch(finalUrl).then(res => res.json());
                 btn.textContent = originalText;
 
                 if (r.success) {
-                    showToast("Open Play Created!", "success");
+                    showToast(r.message || "Open Play Created!", "success");
                     document.getElementById('createOpenPlayModal').style.display = 'none';
+                    refreshOpenPlaySlots(); // Refresh list
                 } else {
                     showToast(r.error, "error");
                 }
