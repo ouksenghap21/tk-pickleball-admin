@@ -3911,19 +3911,23 @@
         async function addPlayerToSlot() {
             const name = document.getElementById('addPlayerName').value.trim();
             const phone = document.getElementById('addPlayerPhone').value.trim();
+            const level = document.getElementById('addPlayerLevel').value;
+            const createProfile = document.getElementById('addPlayerCreateProfile').checked;
 
             if (!name) return showToast("Name is required", "error");
+            if (!phone) return showToast("Phone is required", "error");
             if (!currentSlotId) return showToast("No slot selected", "error");
 
             showLoading(true);
             try {
-                const url = `${BACKEND_URL}?action=addPlayerToOpenPlay&slot_id=${encodeURIComponent(currentSlotId)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+                // Add player to slot
+                const url = `${BACKEND_URL}?action=addPlayerToOpenPlay&slot_id=${encodeURIComponent(currentSlotId)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&level=${encodeURIComponent(level)}&create_profile=${createProfile}`;
                 const res = await fetch(url);
                 const data = await res.json();
 
                 showLoading(false);
                 if (data.success) {
-                    showToast("Player added!", "success");
+                    showToast("Player added!" + (data.profileCreated ? " Profile created." : ""), "success");
                     hideAddPlayerModal();
                     refreshOpenPlaySlots();
                 } else {
@@ -3940,7 +3944,7 @@
     <div id="addPlayerModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width:400px;">
             <div class="modal-header">
-                <h2>Add Player</h2>
+                <h2>Add Player to Slot</h2>
                 <button class="close-btn" onclick="hideAddPlayerModal()">✕</button>
             </div>
             <div class="form-group">
@@ -3948,8 +3952,21 @@
                 <input type="text" id="addPlayerName" class="form-input" placeholder="Enter name">
             </div>
             <div class="form-group">
-                <label>Phone (Optional)</label>
-                <input type="text" id="addPlayerPhone" class="form-input" placeholder="Enter phone">
+                <label>Phone *</label>
+                <input type="text" id="addPlayerPhone" class="form-input" placeholder="e.g. 77589999">
+            </div>
+            <div class="form-group">
+                <label>Skill Level</label>
+                <select id="addPlayerLevel" class="form-input">
+                    <option value="Beginner">Beginner (1.0 - 2.5)</option>
+                    <option value="Intermediate">Intermediate (3.0 - 3.5)</option>
+                    <option value="Advanced">Advanced (4.0+)</option>
+                </select>
+            </div>
+            <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="addPlayerCreateProfile" checked>
+                <label for="addPlayerCreateProfile" style="margin:0; font-size:13px;">Also create/update player
+                    profile</label>
             </div>
             <button class="action-btn btn-primary" style="width:100%;" onclick="addPlayerToSlot()">Add Player</button>
         </div>
