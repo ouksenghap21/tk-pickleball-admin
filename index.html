@@ -2236,6 +2236,22 @@
             </div>
         </div>
 
+        <!-- OPEN PLAY TAB -->
+        <div id="tab-openplay" class="content-section">
+            <div class="header-actions" style="margin-bottom: 20px; justify-content: space-between; display: flex;">
+                <h2>Manage Open Play</h2>
+                <button class="header-btn" style="width:auto; padding:0 12px; font-size:14px;"
+                    onclick="showCreateOpenPlayModal()">+ New Slot</button>
+            </div>
+
+            <div class="customer-card">
+                <div style="flex:1">
+                    <div class="package-name">Feature Coming Soon</div>
+                    <div class="package-hours-label">List of active slots will appear here.</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-tab="bookings" onclick="switchTab('bookings')">
@@ -2254,6 +2270,10 @@
             <button class="nav-item" data-tab="stats" onclick="switchTab('stats')">
                 <span class="nav-item-icon">📊</span>
                 <span class="nav-item-label">Stats</span>
+            </button>
+            <button class="nav-item" data-tab="openplay" onclick="switchTab('openplay')">
+                <span class="nav-item-icon">🎾</span>
+                <span class="nav-item-label">Play</span>
             </button>
         </nav>
 
@@ -3574,6 +3594,112 @@
                 document.getElementById(id)?.addEventListener('change', updateNewBookingPrice);
             });
         });
+    </script>
+    <!-- Create Open Play Modal -->
+    <div id="createOpenPlayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Open Play Slot</h2>
+                <button class="close-btn"
+                    onclick="document.getElementById('createOpenPlayModal').style.display='none'">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="opDate" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Time</label>
+                <select id="opTime" class="form-input">
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                    <option value="21:00">09:00 PM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Duration</label>
+                <select id="opDuration" class="form-input">
+                    <option value="1">1 Hour</option>
+                    <option value="2">2 Hours</option>
+                    <option value="3">3 Hours</option>
+                    <option value="4">4 Hours</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Court</label>
+                <select id="opCourt" class="form-input">
+                    <option value="1">Court 1</option>
+                    <option value="2">Court 2</option>
+                    <option value="3">Court 3</option>
+                    <option value="4">Court 4</option>
+                    <option value="5">Court 5</option>
+                    <option value="6">Court 6</option>
+                    <option value="7">Court 7</option>
+                    <option value="8">Court 8</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Max Players</label>
+                <input type="number" id="opMax" class="form-input" value="4">
+            </div>
+            <div class="form-group">
+                <label>Level Restriction</label>
+                <select id="opLevel" class="form-input">
+                    <option value="All Levels (Fun)">All Levels (Fun)</option>
+                    <option value="Beginner (1.0-2.5)">Beginner (1.0 - 2.5)</option>
+                    <option value="Intermediate (3.0-3.5)">Intermediate (3.0 - 3.5)</option>
+                    <option value="Advanced (4.0-5.0)">Advanced (4.0+)</option>
+                </select>
+            </div>
+            <button class="action-btn btn-primary" onclick="createOpenPlaySlotAction()">Publish Slot</button>
+        </div>
+    </div>
+
+    <script>
+        function showCreateOpenPlayModal() {
+            document.getElementById('createOpenPlayModal').style.display = 'flex';
+        }
+
+        async function createOpenPlaySlotAction() {
+            const date = document.getElementById('opDate').value;
+            const time = document.getElementById('opTime').value;
+            const court = document.getElementById('opCourt').value;
+            const level = document.getElementById('opLevel').value;
+            const max = document.getElementById('opMax').value;
+            const duration = document.getElementById('opDuration').value;
+
+            if (!date || !time) return showToast("Enter date/time", "error");
+
+            const btn = document.querySelector('#createOpenPlayModal .action-btn');
+            const originalText = btn.textContent;
+            btn.textContent = "Creating...";
+
+            const url = `${BACKEND_URL}?action=createOpenPlaySlot&date=${date}&time=${time}&court=${court}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
+            try {
+                const r = await fetch(url).then(res => res.json());
+                btn.textContent = originalText;
+
+                if (r.success) {
+                    showToast("Open Play Created!", "success");
+                    document.getElementById('createOpenPlayModal').style.display = 'none';
+                } else {
+                    showToast(r.error, "error");
+                }
+            } catch (e) {
+                btn.textContent = originalText;
+                showToast("Error", "error");
+            }
+        }
     </script>
 </body>
 
