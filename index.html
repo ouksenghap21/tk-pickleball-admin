@@ -3706,31 +3706,23 @@
             </div>
             <div class="form-group">
                 <label>Court</label>
-                <select id="opCourt" class="form-input">
-                    <option value="1">Court 1</option>
-                    <option value="2">Court 2</option>
-                    <option value="3">Court 3</option>
-                    <option value="4">Court 4</option>
-                    <option value="5">Court 5</option>
-                    <option value="6">Court 6</option>
-                    <option value="7">Court 7</option>
-                    <option value="8">Court 8</option>
+                <label>Max Players (per court)</label>
+                <select id="opMax" class="form-input">
+                    <option value="4">4 Players</option>
+                    <option value="5">5 Players</option>
+                    <option value="6">6 Players</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Max Players</label>
-                <input type="number" id="opMax" class="form-input" value="4">
-            </div>
-            <div class="form-group">
-                <label>Level Restriction</label>
+                <label>Skill Level</label>
                 <select id="opLevel" class="form-input">
                     <option value="All Levels (Fun)">All Levels (Fun)</option>
-                    <option value="Beginner (1.0-2.5)">Beginner (1.0 - 2.5)</option>
-                    <option value="Intermediate (3.0-3.5)">Intermediate (3.0 - 3.5)</option>
-                    <option value="Advanced (4.0-5.0)">Advanced (4.0+)</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
                 </select>
             </div>
-            <button class="action-btn btn-primary" onclick="createOpenPlaySlotAction()">Publish Slot</button>
+            <button class="action-btn btn-primary" onclick="createOpenPlaySlotAction()">Create / Schedule</button>
         </div>
     </div>
 
@@ -3742,7 +3734,7 @@
         async function createOpenPlaySlotAction() {
             const date = document.getElementById('opDate').value;
             const time = document.getElementById('opTime').value;
-            const court = document.getElementById('opCourt').value;
+            // Court auto-allocated
             const level = document.getElementById('opLevel').value;
             const max = document.getElementById('opMax').value;
             const duration = document.getElementById('opDuration').value;
@@ -3753,14 +3745,17 @@
             const originalText = btn.textContent;
             btn.textContent = "Creating...";
 
-            const url = `${BACKEND_URL}?action=createOpenPlaySlot&date=${date}&time=${time}&court=${court}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
+            // Use createUserOpenPlaySlot logic but adapted for Admin (or new action)
+            // Ideally we use a new action `createAdminOpenPlaySlot` to avoid user-style auto-join
+            const url = `${BACKEND_URL}?action=createAdminOpenPlaySlot&date=${date}&time=${time}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
 
             // Check for End Date (Bulk Create)
             const endDate = document.getElementById('opEndDate').value;
             let finalUrl = url;
 
             if (endDate && endDate !== date) {
-                finalUrl = `${BACKEND_URL}?action=createOpenPlaySlotsBulk&startDate=${date}&endDate=${endDate}&time=${time}&court=${court}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
+                // Bulk create needs update too, but for now focusing on single
+                finalUrl = `${BACKEND_URL}?action=createAdminOpenPlaySlotsBulk&startDate=${date}&endDate=${endDate}&time=${time}&level=${encodeURIComponent(level)}&max=${max}&duration=${duration}`;
             }
 
             try {
