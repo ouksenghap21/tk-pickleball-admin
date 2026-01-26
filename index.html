@@ -2284,6 +2284,11 @@
 
             <!-- Slots View -->
             <div id="view-op-slots">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                    <button class="action-btn secondary" onclick="refreshOpenPlaySlots()"
+                        style="width:auto; padding:6px 12px; font-size:12px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);">🔄
+                        Refresh</button>
+                </div>
                 <div id="adminOpenPlayList" class="bookings-list">
                     <div class="empty-state">Loading slots...</div>
                 </div>
@@ -3792,12 +3797,14 @@
             if (subTab === 'profiles') refreshOpenPlayProfiles();
         }
 
-        async function refreshOpenPlaySlots() {
+        async function refreshOpenPlaySlots(isAuto = false) {
             const container = document.getElementById('adminOpenPlayList');
-            container.innerHTML = '<div class="empty-state">Loading slots...</div>';
+            if (!isAuto) {
+                container.innerHTML = '<div class="empty-state">Loading slots...</div>';
+            }
 
             try {
-                const res = await fetch(`${BACKEND_URL}?action=getOpenPlaySlots`);
+                const res = await fetch(`${BACKEND_URL}?action=getOpenPlaySlots&t=${new Date().getTime()}`);
                 const data = await res.json();
 
                 if (data.success && data.slots.length > 0) {
@@ -3853,9 +3860,18 @@
                 }
             } catch (e) {
                 console.error(e);
-                container.innerHTML = '<div class="empty-state">Error loading slots.</div>';
+                if (!isAuto) container.innerHTML = '<div class="empty-state">Error loading slots.</div>';
             }
         }
+
+        // Auto-refresh Open Play slots every 60 seconds if visible
+        setInterval(() => {
+            const view = document.getElementById('view-op-slots');
+            if (view && view.offsetParent !== null) {
+                console.log("Auto-refreshing Open Play slots...");
+                refreshOpenPlaySlots(true);
+            }
+        }, 60000);
 
         async function refreshOpenPlayProfiles() {
             const container = document.getElementById('adminProfileList');
