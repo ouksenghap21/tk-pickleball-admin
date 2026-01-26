@@ -3821,13 +3821,18 @@
                         const duration = parseFloat(slot.duration || 1);
 
                         const count = parseInt(slot.count) || 0;
+                        const isPast = slot.isPast || false;
 
-                        // Status Logic - Show CONFIRMED if 2+ players, PENDING otherwise
+                        // Status Logic - Show PASSED/CONFIRMED/PENDING
                         let statusBadge = "";
                         let statusClass = "";
                         let borderColor = "var(--accent)";
                         
-                        if (count >= 2) {
+                        if (isPast) {
+                            statusBadge = "PASSED ⏱";
+                            statusClass = "status-pending";
+                            borderColor = "#666";
+                        } else if (count >= 2) {
                             statusBadge = "CONFIRMED ✓";
                             statusClass = "status-confirmed";
                             borderColor = "var(--emerald)";
@@ -3838,36 +3843,56 @@
                             borderColor = "var(--warning)";
                         }
 
-                        // Expandable players list
-                        const playersHtml = players.map(p => `
-                              <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #333; font-size:13px;">
-                                  <span>${p.name} <span style="color:var(--text-muted)">(${p.phone || 'No Phone'})</span></span>
+                        // Expandable players list with clickable payment status
+                        const playersHtml = players.map(p => {
+                            const paymentStatus = p.paymentStatus || 'Pending';
+                            const isPaid = paymentStatus === 'Paid';
+                            const statusColor = isPaid ? 'var(--emerald)' : 'var(--warning)';
+                            const statusIcon = isPaid ? '✓' : '⏳';
+                            
+                            return `
+                              <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed #333; font-size:13px;">
+                                  <span>${p.name} <span style="color:var(--text-muted); font-size:11px;">(${p.phone || 'No Phone'})</span></span>
                                   <div style="display:flex; align-items:center; gap:8px;">
-                                      <span style="color:var(--emerald)">${p.paymentStatus || 'Joined'}</span>
-                                      <button onclick="removePlayerFromSlot('${slot.id}', '${p.id}')" style="background:none; border:none; cursor:pointer; color:#EF4444;">✕</button>
+                                      <button onclick="togglePaymentStatus('${slot.id}', '${p.id}', '${paymentStatus}')" 
+                                          style="background:${isPaid ? 'var(--success-light)' : 'var(--warning-light)'}; 
+                                                 border:none; cursor:pointer; color:${statusColor}; 
+                                                 padding:4px 10px; border-radius:12px; font-size:11px; font-weight:600;"
+                                          title="Click to toggle payment status">
+                                          ${statusIcon} ${paymentStatus}
+                                      </button>
+                                      <button onclick="removePlayerFromSlot('${slot.id}', '${p.id}')" style="background:none; border:none; cursor:pointer; color:#EF4444; font-size:16px;">✕</button>
                                   </div>
                               </div>
-                          `).join('');
+                          `;
+                        }).join('');
+
+                        // Style for past slots
+                        const cardStyle = isPast 
+                            ? `border-left: 4px solid ${borderColor}; opacity: 0.6; background: rgba(0,0,0,0.3);` 
+                            : `border-left: 4px solid ${borderColor}`;
 
                         return `
-                         <div class="booking-card" style="border-left: 4px solid ${borderColor}">
+                         <div class="booking-card" style="${cardStyle}">
                              <div class="booking-header">
-                                 <div class="booking-time">${slot.time} (${duration}h)</div>
-                                 <div class="booking-status ${statusClass}" style="background:${count >= 2 ? 'var(--success-light)' : 'var(--warning-light)'}; color:${count >= 2 ? 'var(--emerald)' : 'var(--warning)'}; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700;">${statusBadge}</div>
+                                 <div class="booking-time">${slot.time} (${duration}h) ${isPast ? '<span style="color:#999;">[ENDED]</span>' : ''}</div>
+                                 <div class="booking-status ${statusClass}" style="background:${isPast ? '#444' : (count >= 2 ? 'var(--success-light)' : 'var(--warning-light)')}; color:${isPast ? '#999' : (count >= 2 ? 'var(--emerald)' : 'var(--warning)')}; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700;">${statusBadge}</div>
                              </div>
                              <div class="booking-details">
                                  <div>${slot.date} • Court ${slot.court}</div>
-                                 <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${slot.level} • ${slot.count}/${slot.max} Players</div>
+                                 <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${slot.level} • ${slot.count}/${slot.max} Players • $${5 * duration}/person</div>
                              </div>
                              
                             <div style="margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
-                                 <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Players</div>
+                                 <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Players (Click to toggle payment)</div>
                                  ${players.length ? playersHtml : '<div style="font-size:12px; font-style:italic; color:var(--text-muted)">No players yet</div>'}
                              </div>
+                             ${!isPast ? `
                              <div style="display:flex; gap:8px; margin-top:10px;">
                                  <button class="action-btn secondary" style="flex:1;" onclick="showAddPlayerModal('${slot.id}')">➕ Add Player</button>
                                  <button class="action-btn" style="flex:1; background: linear-gradient(135deg, #EF4444, #DC2626);" onclick="cancelOpenPlaySlot('${slot.id}')">❌ Cancel</button>
                              </div>
+                             ` : '<div style="text-align:center; padding:8px; color:#999; font-size:12px;">This session has ended</div>'}
                          </div>
                          `;
                     }).join('');
@@ -3877,6 +3902,26 @@
             } catch (e) {
                 console.error(e);
                 if (!isAuto) container.innerHTML = '<div class="empty-state">Error loading slots.</div>';
+            }
+        }
+
+        // Toggle payment status between Paid and Pending
+        async function togglePaymentStatus(slotId, playerId, currentStatus) {
+            const newStatus = currentStatus === 'Paid' ? 'Pending' : 'Paid';
+            
+            try {
+                const url = `${BACKEND_URL}?action=updateOpenPlayPayment&slot_id=${slotId}&player_id=${playerId}&payment_status=${newStatus}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast(`Payment status updated to ${newStatus}`, 'success');
+                    refreshOpenPlaySlots(true);
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                showToast('Error updating payment status', 'error');
             }
         }
 
