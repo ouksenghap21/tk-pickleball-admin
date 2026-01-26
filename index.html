@@ -1869,15 +1869,21 @@
             font-size: 14px;
             font-weight: 500;
             z-index: 3000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
             display: flex;
             align-items: center;
             gap: 10px;
             box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         .toast.success {
@@ -3814,14 +3820,22 @@
                         const players = slot.players || [];
                         const duration = parseFloat(slot.duration || 1);
 
-                        // Status Logic
-                        let statusBadge = slot.status;
-                        let statusClass = "status-confirmed";
-                        if (slot.count < 2 && slot.status === "OPEN") {
-                            statusBadge = "PENDING (Need " + (2 - slot.count) + " more)";
-                            statusClass = "status-pending"; // You might need to add CSS for this, or use status-cancelled style
-                        } else if (slot.status === "OPEN") {
-                            statusBadge = "CONFIRMED";
+                        const count = parseInt(slot.count) || 0;
+
+                        // Status Logic - Show CONFIRMED if 2+ players, PENDING otherwise
+                        let statusBadge = "";
+                        let statusClass = "";
+                        let borderColor = "var(--accent)";
+                        
+                        if (count >= 2) {
+                            statusBadge = "CONFIRMED ✓";
+                            statusClass = "status-confirmed";
+                            borderColor = "var(--emerald)";
+                        } else {
+                            const needed = 2 - count;
+                            statusBadge = "PENDING (Need " + needed + " more)";
+                            statusClass = "status-pending";
+                            borderColor = "var(--warning)";
                         }
 
                         // Expandable players list
@@ -3836,10 +3850,10 @@
                           `).join('');
 
                         return `
-                         <div class="booking-card" style="border-left: 4px solid var(--accent)">
+                         <div class="booking-card" style="border-left: 4px solid ${borderColor}">
                              <div class="booking-header">
                                  <div class="booking-time">${slot.time} (${duration}h)</div>
-                                 <div class="booking-status status-confirmed">${slot.status}</div>
+                                 <div class="booking-status ${statusClass}" style="background:${count >= 2 ? 'var(--success-light)' : 'var(--warning-light)'}; color:${count >= 2 ? 'var(--emerald)' : 'var(--warning)'}; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700;">${statusBadge}</div>
                              </div>
                              <div class="booking-details">
                                  <div>${slot.date} • Court ${slot.court}</div>
